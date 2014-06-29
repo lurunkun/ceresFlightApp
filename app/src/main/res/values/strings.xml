@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Ceres Imaging</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="button_prev">prev pass</string>
+    <string name="button_next">next pass</string>
+    <string name="button_A">setA</string>
+    <string name="button_B">setB</string>
+
+</resources>
