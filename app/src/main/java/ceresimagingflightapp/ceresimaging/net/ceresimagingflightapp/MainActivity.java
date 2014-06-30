@@ -69,14 +69,14 @@ public class MainActivity extends Activity implements
     private Marker mMarkerA;
     private Marker mMarkerB;
     private Polyline mPathLine;
-    private int mShiftDist = 850;
+    private int mShiftDist = (int) Math.round(MainActivity.toMeters(850));
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
 
-    private boolean mIsFollowing;
-    private boolean mIsRotating;
+    private boolean mIsFollowing = false;
+    private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
 
     private TextView mTextCurrentLocation;
@@ -89,6 +89,30 @@ public class MainActivity extends Activity implements
     private ImageView mImageTrackDistDir;
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
+
+    public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
+        final double R = 6371009;
+        LatLng current = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        double currentHeading = currentLocation.getBearing();
+        double distAC = SphericalUtil.computeDistanceBetween(a, current);
+        double bearingAC = SphericalUtil.computeHeading(a, current);
+        double bearingAB = SphericalUtil.computeHeading(a, b);
+        bearingAC = Math.toRadians(bearingAC);
+        bearingAB = Math.toRadians(bearingAB);
+        double trackDist = Math.asin(Math.sin(distAC/R) * Math.sin(bearingAC - bearingAB)) * R;
+        double angleDiff = Math.abs(currentHeading - bearingAB) % 360;
+        if (angleDiff > 90) {
+            trackDist = trackDist * -1;
+        }
+        return trackDist;
+    }
+
+    public static double toFeet(double distance) {
+        return distance * 3.28084;
+    }
+    public static double toMeters(double distance) {
+        return distance * 0.3048;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,10 +133,12 @@ public class MainActivity extends Activity implements
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
         mSeekBarSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         mSeekBarSlider.setMax(1200);
+        mSeekBarSlider.setProgress(850);
         mSeekBarSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    mButtonToggleSeekBar.setText(Integer.toString(i));
+                    int feet = (int) Math.round(MainActivity.toFeet(i));
+                    mButtonToggleSeekBar.setText(Integer.toString(feet));
                     mShiftDist = i;
                 }
             }
@@ -284,19 +310,22 @@ public class MainActivity extends Activity implements
                 cameraPosition = new CameraPosition.Builder()
                         .target(mCurrentLatLng)
                         .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         } else {
             float zoom = mMap.getCameraPosition().zoom;
             cameraPosition = new CameraPosition.Builder()
                     .target(mCurrentLatLng)
                     .zoom(zoom).bearing(0).build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     public void onToggleFlightLine(View view) {
         mIsFlightLineVis = ((ToggleButton) view).isChecked();
-        mFlightLine.setVisible(mIsFlightLineVis);
+        if (mFlightLine != null) {
+            mFlightLine.setVisible(mIsFlightLineVis);
+        }
     }
 
     public void onClickButtonA(View view) {
@@ -380,7 +409,7 @@ public class MainActivity extends Activity implements
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
             int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString(trackDist));
+            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
             if (trackDist > 0) {
                 mImageTrackDistDir.setImageDrawable(mDrawableRight);
             } else {
@@ -404,7 +433,7 @@ public class MainActivity extends Activity implements
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
             int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString(trackDist));
+            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
             if (trackDist > 0) {
                 mImageTrackDistDir.setImageDrawable(mDrawableRight);
             } else {
@@ -424,23 +453,6 @@ public class MainActivity extends Activity implements
             params.height = 0;
         }
         distSlider.setLayoutParams(params);
-    }
-
-    public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
-        final double R = 6371009;
-        LatLng current = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        double currentHeading = currentLocation.getBearing();
-        double distAC = SphericalUtil.computeDistanceBetween(a, current);
-        double bearingAC = SphericalUtil.computeHeading(a, current);
-        double bearingAB = SphericalUtil.computeHeading(a, b);
-        bearingAC = Math.toRadians(bearingAC);
-        bearingAB = Math.toRadians(bearingAB);
-        double trackDist = Math.asin(Math.sin(distAC/R) * Math.sin(bearingAC - bearingAB)) * R;
-        double angleDiff = Math.abs(currentHeading - bearingAB) % 360;
-        if (angleDiff > 90) {
-            trackDist = trackDist * -1;
-        }
-        return trackDist;
     }
 
     @Override
@@ -487,7 +499,7 @@ public class MainActivity extends Activity implements
         mTextCurrentLocation.setText(lat + ", " + lng);
         if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
             int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString(trackDist));
+            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
             if (trackDist > 0) {
                 mImageTrackDistDir.setImageDrawable(mDrawableRight);
             } else {
