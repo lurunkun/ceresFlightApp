@@ -259,7 +259,6 @@ public class MainActivity extends Activity implements
             String name = feature.getJSONObject("properties").getString("name");
 
             JSONArray coords = geometry.getJSONArray("coordinates");
-            Log.e(TAG, coords.toString());
             // if feature is a point
             if (geometry.getString("type").equals("Point")) {
                 Marker marker = mMap.addMarker(new MarkerOptions()
@@ -496,7 +495,9 @@ public class MainActivity extends Activity implements
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         mCurrentLatLng = new LatLng(lat, lng);
-        mTextCurrentLocation.setText(lat + ", " + lng);
+        if (IS_DEV) {
+            mTextCurrentLocation.setText(lat + ", " + lng);
+        }
         if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
             int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
             mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
