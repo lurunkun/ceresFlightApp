@@ -156,7 +156,6 @@ public class MainActivity extends Activity implements
         if (checkPlayServices()) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
-            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
 
             new Thread(new Runnable() {
@@ -223,7 +222,7 @@ public class MainActivity extends Activity implements
 
     void showErrorDialog(int code) {
         GooglePlayServicesUtil.getErrorDialog(code, this,
-                1).show();
+                REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
     }
 
     private void initGeolocation() {
