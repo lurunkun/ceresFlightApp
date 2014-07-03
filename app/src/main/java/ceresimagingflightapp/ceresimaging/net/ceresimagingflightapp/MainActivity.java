@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +20,7 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -53,8 +55,9 @@ public class MainActivity extends Activity implements
 
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/flight1.json";
-    private static final int UPDATE_INTERVAL = 1000;
-    private static final int FASTEST_INTERVAL = 1000;
+    private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
+    private static final int UPDATE_INTERVAL = 100;
+    private static final int FASTEST_INTERVAL = 50;
     private static final boolean IS_DEV = true;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -150,32 +153,30 @@ public class MainActivity extends Activity implements
             }
         });
 
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        mMap.getUiSettings().setMyLocationButtonEnabled(false);
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMarkerClickListener(this);
-//		mMap.setOnMapClickListener(new OnMapClickListener() {
-//			public void onMapClick(LatLng point) {
-//				float zoom = mMap.getCameraPosition().zoom;
-//				CameraPosition cameraPosition = new CameraPosition.Builder()
-//					.target(mLocationCurrent)
-//					.tilt(0)
-//					.zoom(zoom)
-//					.build();
-//				mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//			}
-//		});
+        if (checkPlayServices()) {
+            mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.setMyLocationEnabled(true);
+            mMap.setOnMarkerClickListener(this);
 
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    retrieveAndAddCities();
-                } catch (IOException e) {
-                    Log.e(TAG, "Cannot retrieve data", e);
-                    return;
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        retrieveAndAddCities();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Cannot retrieve data", e);
+                        return;
+                    }
                 }
-            }
-        }).start();
+            }).start();
+        } else {
+            LinearLayout layoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
+            layoutArrow.setVisibility(View.INVISIBLE);
+            mToggleFlightLine.setVisibility(View.INVISIBLE);
+            mToggleCurrentLocation.setVisibility(View.INVISIBLE);
+            ToggleButton toggleRotation = (ToggleButton) findViewById(R.id.toggle_rotation);
+            toggleRotation.setVisibility(View.INVISIBLE);
+        }
         initGeolocation();
     }
 
@@ -203,6 +204,26 @@ public class MainActivity extends Activity implements
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    private boolean checkPlayServices() {
+        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (status != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(status)) {
+                showErrorDialog(status);
+            } else {
+                Toast.makeText(this, "This device is not supported.",
+                        Toast.LENGTH_LONG).show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    void showErrorDialog(int code) {
+        GooglePlayServicesUtil.getErrorDialog(code, this,
+                1).show();
     }
 
     private void initGeolocation() {
@@ -280,90 +301,101 @@ public class MainActivity extends Activity implements
     }
 
     public void onToggleCurrentLocation(View view) {
-        mIsFollowing = ((ToggleButton) view).isChecked();
-        if (mIsFollowing) {
-            float zoom = mMap.getCameraPosition().zoom;
-            CameraPosition cameraPosition;
-            if (mIsRotating) {
-                cameraPosition = new CameraPosition.Builder()
-                        .target(mCurrentLatLng)
-                        .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
+        if (mMap != null) {
+            mIsFollowing = ((ToggleButton) view).isChecked();
+            if (mIsFollowing) {
+                float zoom = mMap.getCameraPosition().zoom;
+                CameraPosition cameraPosition;
+                if (mIsRotating) {
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(mCurrentLatLng)
+                            .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
+                } else {
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(mCurrentLatLng)
+                            .zoom(zoom).build();
+                }
+                mMap.animateCamera(CameraUpdateFactory
+                        .newCameraPosition(cameraPosition));
             } else {
-                cameraPosition = new CameraPosition.Builder()
-                        .target(mCurrentLatLng)
-                        .zoom(zoom).build();
-            }
-            mMap.animateCamera(CameraUpdateFactory
-                    .newCameraPosition(cameraPosition));
-        } else {
 
+            }
         }
     }
 
     public void onToggleRotation(View view) {
-        mIsRotating = ((ToggleButton) view).isChecked();
-        CameraPosition cameraPosition = null;
-        if (mIsRotating) {
-            if (mIsFollowing) {
+        if (mMap != null) {
+            mIsRotating = ((ToggleButton) view).isChecked();
+            CameraPosition cameraPosition = null;
+            if (mIsRotating) {
+                if (mIsFollowing) {
+                    float zoom = mMap.getCameraPosition().zoom;
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(mCurrentLatLng)
+                            .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+            } else {
                 float zoom = mMap.getCameraPosition().zoom;
                 cameraPosition = new CameraPosition.Builder()
                         .target(mCurrentLatLng)
-                        .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
+                        .zoom(zoom).bearing(0).build();
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
-        } else {
-            float zoom = mMap.getCameraPosition().zoom;
-            cameraPosition = new CameraPosition.Builder()
-                    .target(mCurrentLatLng)
-                    .zoom(zoom).bearing(0).build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
         }
     }
 
     public void onToggleFlightLine(View view) {
-        mIsFlightLineVis = ((ToggleButton) view).isChecked();
-        if (mFlightLine != null) {
-            mFlightLine.setVisible(mIsFlightLineVis);
+        if (mMap != null) {
+            mIsFlightLineVis = ((ToggleButton) view).isChecked();
+            if (mFlightLine != null) {
+                mFlightLine.setVisible(mIsFlightLineVis);
+            }
         }
     }
 
     public void onClickButtonA(View view) {
-        mLocationA = mLocationClient.getLastLocation();
-        mPassNumber = 0;
-        view.setBackgroundColor(Color.RED);
-        Button button_B = (Button) findViewById(R.id.button_B);
-        button_B.setBackgroundColor(Color.LTGRAY);
-        if (mPathLine != null) {
-            mPathLine.setVisible(false);
-        }
-        if (IS_DEV) {
-            TextView locationA = (TextView) findViewById(R.id.text_point_A);
-            locationA.setText(mLocationA.getLatitude() + " " + mLocationA.getLongitude());
+        if (mMap != null) {
+            mLocationA = mLocationClient.getLastLocation();
+            mPassNumber = 0;
+            view.setBackgroundColor(Color.RED);
+            Button button_B = (Button) findViewById(R.id.button_B);
+            button_B.setBackgroundColor(Color.LTGRAY);
+            if (mPathLine != null) {
+                mPathLine.setVisible(false);
+            }
+            if (IS_DEV) {
+                TextView locationA = (TextView) findViewById(R.id.text_point_A);
+                locationA.setText(mLocationA.getLatitude() + " " + mLocationA.getLongitude());
+            }
+
         }
     }
 
     public void onClickButtonB(View view) {
-        if (mLocationA != null){
-            mPassNumber = 0;
-            mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
-            mLocationB = mLocationClient.getLastLocation();
-            view.setBackgroundColor(Color.RED);
-            LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
-            LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
-            mInterpA = SphericalUtil.computeOffset(pointB, 500, SphericalUtil.computeHeading(pointB, pointA));
-            mInterpB = SphericalUtil.computeOffset(pointA, 500, SphericalUtil.computeHeading(pointA, pointB));
+        if (mMap != null) {
+            if (mLocationA != null){
+                mPassNumber = 0;
+                mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
+                mLocationB = mLocationClient.getLastLocation();
+                view.setBackgroundColor(Color.RED);
+                LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
+                LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
+                mInterpA = SphericalUtil.computeOffset(pointB, 500, SphericalUtil.computeHeading(pointB, pointA));
+                mInterpB = SphericalUtil.computeOffset(pointA, 500, SphericalUtil.computeHeading(pointA, pointB));
 
-            if (mMarkerA != null && mMarkerB != null) {
-                mMarkerA.setPosition(mInterpA);
-                mMarkerB.setPosition(mInterpB);
-            } else {
-                mMarkerA = mMap.addMarker(new MarkerOptions()
-                        .position(mInterpA));
-                mMarkerA.setTitle("interpA");
-                mMarkerB = mMap.addMarker(new MarkerOptions()
-                        .position(mInterpB));
-                mMarkerB.setTitle("interpB");
-            }
+                if (mMarkerA != null && mMarkerB != null) {
+                    mMarkerA.setPosition(mInterpA);
+                    mMarkerB.setPosition(mInterpB);
+                } else {
+                    mMarkerA = mMap.addMarker(new MarkerOptions()
+                            .position(mInterpA));
+                    mMarkerA.setTitle("interpA");
+                    mMarkerB = mMap.addMarker(new MarkerOptions()
+                            .position(mInterpB));
+                    mMarkerB.setTitle("interpB");
+                }
 //            if (IS_DEV) {
 //                mMap.addMarker(new MarkerOptions()
 //                        .position(mInterpA)).setTitle("interp A");
@@ -371,32 +403,33 @@ public class MainActivity extends Activity implements
 //                        .position(mInterpB)).setTitle("interp B");
 //            }
 
-            PolylineOptions pathOptions = new PolylineOptions()
-                    .width(10)
-                    .color(Color.MAGENTA)
-                    .add(mInterpA)
-                    .add(mInterpB);
-            if (mPathLine != null) {
-                mPathLine.setVisible(true);
-                List<LatLng> newPoints = mPathLine.getPoints();
-                newPoints.clear();
-                newPoints.add(mInterpA);
-                newPoints.add(mInterpB);
-                mPathLine.setPoints(newPoints);
-                mMarkerA.setPosition(mInterpA);
-                mMarkerB.setPosition(mInterpB);
-            } else {
-                mPathLine = mMap.addPolyline(pathOptions);
-            }
-            if (IS_DEV) {
-                TextView locationB = (TextView) findViewById(R.id.text_point_B);
-                locationB.setText(mLocationB.getLatitude() + " " + mLocationB.getLongitude());
+                PolylineOptions pathOptions = new PolylineOptions()
+                        .width(10)
+                        .color(Color.MAGENTA)
+                        .add(mInterpA)
+                        .add(mInterpB);
+                if (mPathLine != null) {
+                    mPathLine.setVisible(true);
+                    List<LatLng> newPoints = mPathLine.getPoints();
+                    newPoints.clear();
+                    newPoints.add(mInterpA);
+                    newPoints.add(mInterpB);
+                    mPathLine.setPoints(newPoints);
+                    mMarkerA.setPosition(mInterpA);
+                    mMarkerB.setPosition(mInterpB);
+                } else {
+                    mPathLine = mMap.addPolyline(pathOptions);
+                }
+                if (IS_DEV) {
+                    TextView locationB = (TextView) findViewById(R.id.text_point_B);
+                    locationB.setText(mLocationB.getLatitude() + " " + mLocationB.getLongitude());
+                }
             }
         }
     }
 
     public void onClickButtonPrev(View view) {
-        if (mInterpA != null && mInterpB != null) {
+        if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
             mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading + 90);
             mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading + 90);
@@ -420,7 +453,7 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonNext(View view) {
-        if (mInterpA != null && mInterpB != null) {
+        if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
             mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading - 90);
             mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading - 90);
@@ -531,6 +564,7 @@ public class MainActivity extends Activity implements
             mFlightLine.setPoints(points);
         }
     }
+
 
 }
 
