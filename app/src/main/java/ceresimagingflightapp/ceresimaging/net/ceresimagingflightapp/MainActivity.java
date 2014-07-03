@@ -56,8 +56,8 @@ public class MainActivity extends Activity implements
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/flight1.json";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final int UPDATE_INTERVAL = 100;
-    private static final int FASTEST_INTERVAL = 50;
+    private static final int UPDATE_INTERVAL = 1000;
+    private static final int FASTEST_INTERVAL = 1000;
     private static final boolean IS_DEV = true;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -524,6 +524,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.e(TAG, location.toString());
         mLocationCurrent = location;
         double lat = location.getLatitude();
         double lng = location.getLongitude();
