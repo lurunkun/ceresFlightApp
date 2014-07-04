@@ -1,6 +1,8 @@
 package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
@@ -56,8 +58,8 @@ public class MainActivity extends Activity implements
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/flight1.json";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final int UPDATE_INTERVAL = 1000;
-    private static final int FASTEST_INTERVAL = 1000;
+    private static final int UPDATE_INTERVAL = 50;
+    private static final int FASTEST_INTERVAL = 50;
     private static final boolean IS_DEV = true;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -82,6 +84,7 @@ public class MainActivity extends Activity implements
     private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
 
+    private AlertDialog mGetLocationAlert;
     private TextView mTextCurrentLocation;
     private TextView mTextTrackDist;
     private TextView mTextPassNumber;
@@ -156,7 +159,21 @@ public class MainActivity extends Activity implements
         if (checkPlayServices()) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
+            mGetLocationAlert = new AlertDialog.Builder(this)
+                    .setTitle("retrieving location")
+                    .setMessage("Please Wait...")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .create();
+
+            mGetLocationAlert.show();
 
             new Thread(new Runnable() {
                 public void run() {
@@ -525,6 +542,9 @@ public class MainActivity extends Activity implements
     public void onLocationChanged(Location location) {
         Log.e(TAG, location.toString());
         mLocationCurrent = location;
+        if (mLocationCurrent != null) {
+            mGetLocationAlert.dismiss();
+        }
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         mCurrentLatLng = new LatLng(lat, lng);
