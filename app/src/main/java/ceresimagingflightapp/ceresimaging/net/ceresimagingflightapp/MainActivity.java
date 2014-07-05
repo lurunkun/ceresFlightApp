@@ -113,6 +113,15 @@ public class MainActivity extends Activity implements
         return trackDist;
     }
 
+    public void displayTrackDist(double trackDist) {
+        mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
+        if (trackDist > 0) {
+            mImageTrackDistDir.setImageDrawable(mDrawableRight);
+        } else {
+            mImageTrackDistDir.setImageDrawable(mDrawableLeft);
+        }
+    }
+
     public static double toFeet(double distance) {
         return distance * 3.28084;
     }
@@ -456,13 +465,8 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
-            if (trackDist > 0) {
-                mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            } else {
-                mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-            }
+            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            displayTrackDist(trackDist);
             mPassNumber--;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
         }
@@ -480,13 +484,8 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
-            if (trackDist > 0) {
-                mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            } else {
-                mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-            }
+            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            displayTrackDist(trackDist);
             mPassNumber++;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
         }
@@ -552,13 +551,8 @@ public class MainActivity extends Activity implements
             mTextCurrentLocation.setText(lat + ", " + lng);
         }
         if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
-            int trackDist = (int) Math.round(this.getTrackDist(mInterpA, mInterpB, mLocationCurrent));
-            mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
-            if (trackDist > 0) {
-                mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            } else {
-                mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-            }
+            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            displayTrackDist(trackDist);
         }
         if (mIsFollowing) {
             CameraPosition cameraPosition;

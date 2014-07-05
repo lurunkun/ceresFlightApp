@@ -40,16 +40,50 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:id="@+id/layout_arrow"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.00">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/image_trackDist_direction"
+            android:layout_weight="1"
+            android:src="@drawable/ic_action_forward"
+            android:contentDescription="direction"
+            android:layout_gravity="center"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:id="@+id/text_track_dist"
+            android:layout_weight="1"
+            android:textSize="50dp"
+            android:textIsSelectable="false"
+            android:textColor="#ff0000"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.98">
+        android:layout_height="wrap_content"
+        android:layout_weight="0.99">
 
         <fragment
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.MapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
             map:cameraTargetLat="37.7750"
             map:cameraTargetLng="-122.4183"
             map:cameraZoom="15"
@@ -85,39 +119,6 @@
             android:layout_marginRight="140dp"
             android:checked="true"
             android:onClick="onToggleFlightLine" />
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.2"
-            android:layout_gravity="left"
-            android:background="#ffffff"
-            android:id="@+id/layout_arrow">
-
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:id="@+id/image_trackDist_direction"
-                android:layout_weight="1"
-                android:src="@drawable/ic_action_forward"
-                android:contentDescription="direction"
-                android:layout_gravity="center"
-                android:scaleType="fitXY" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:id="@+id/text_track_dist"
-                android:layout_weight="1"
-                android:textSize="100dp"
-                android:textIsSelectable="false"
-                android:textColor="#ff0000"
-                android:textStyle="bold"
-                android:gravity="center" />
-
-        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
