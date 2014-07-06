@@ -27,7 +27,8 @@
             android:layout_weight="1"
             android:clickable="true"
             android:gravity="center"
-            android:textSize="25dp" />
+            android:textSize="25dp"
+            android:freezesText="true"/>
 
         <Button
             android:id="@+id/button_next"
@@ -47,11 +48,13 @@
         android:background="#ffffff"
         android:id="@+id/layout_arrow"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.00">
+        android:layout_weight="0.00"
+        android:clickable="true"
+        android:onClick="onClickLayoutArrow">
 
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="50sp"
+            android:layout_height="50sp"
             android:id="@+id/image_trackDist_direction"
             android:layout_weight="1"
             android:src="@drawable/ic_action_forward"
@@ -60,16 +63,17 @@
             android:scaleType="fitXY" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:text="0"
             android:id="@+id/text_track_dist"
             android:layout_weight="1"
-            android:textSize="50dp"
+            android:textSize="50sp"
             android:textIsSelectable="false"
             android:textColor="#ff0000"
             android:textStyle="bold"
             android:gravity="center"
+            android:freezesText="true"
             android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
@@ -117,6 +121,8 @@
             android:id="@+id/toggle_flight_line"
             android:layout_gravity="right"
             android:layout_marginRight="140dp"
+            android:textOff="line"
+            android:textOn="line"
             android:checked="true"
             android:onClick="onToggleFlightLine" />
 

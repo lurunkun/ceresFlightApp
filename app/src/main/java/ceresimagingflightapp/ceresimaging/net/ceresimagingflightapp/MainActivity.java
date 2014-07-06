@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -83,6 +84,7 @@ public class MainActivity extends Activity implements
     private boolean mIsFollowing = false;
     private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
+    private boolean mIsExpanded = false;
 
     private AlertDialog mGetLocationAlert;
     private TextView mTextCurrentLocation;
@@ -95,6 +97,7 @@ public class MainActivity extends Activity implements
     private ImageView mImageTrackDistDir;
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
+    private LinearLayout mLayoutArrow;
 
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
@@ -111,15 +114,6 @@ public class MainActivity extends Activity implements
             trackDist = trackDist * -1;
         }
         return trackDist;
-    }
-
-    public void displayTrackDist(double trackDist) {
-        mTextTrackDist.setText(Integer.toString((int) Math.round(MainActivity.toFeet(trackDist))));
-        if (trackDist > 0) {
-            mImageTrackDistDir.setImageDrawable(mDrawableRight);
-        } else {
-            mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-        }
     }
 
     public static double toFeet(double distance) {
@@ -142,6 +136,7 @@ public class MainActivity extends Activity implements
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
         ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
+        mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
         mDrawableLeft.setColorFilter(filter);
         mDrawableRight.setColorFilter(filter);
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
@@ -195,14 +190,18 @@ public class MainActivity extends Activity implements
                 }
             }).start();
         } else {
-            LinearLayout layoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
-            layoutArrow.setVisibility(View.INVISIBLE);
+            mLayoutArrow.setVisibility(View.INVISIBLE);
             mToggleFlightLine.setVisibility(View.INVISIBLE);
             mToggleCurrentLocation.setVisibility(View.INVISIBLE);
             ToggleButton toggleRotation = (ToggleButton) findViewById(R.id.toggle_rotation);
             toggleRotation.setVisibility(View.INVISIBLE);
         }
         initGeolocation();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -257,6 +256,16 @@ public class MainActivity extends Activity implements
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
         mLocationClient = new LocationClient(this, this, this);
+    }
+
+    public void displayTrackDist(double trackDist) {
+        if (trackDist > 0) {
+            mImageTrackDistDir.setImageDrawable(mDrawableRight);
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
+        } else {
+            mImageTrackDistDir.setImageDrawable(mDrawableLeft);
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'L');
+        }
     }
 
     protected void retrieveAndAddCities() throws IOException {
@@ -500,6 +509,24 @@ public class MainActivity extends Activity implements
             params.height = 0;
         }
         distSlider.setLayoutParams(params);
+    }
+
+    public void onClickLayoutArrow(View view) {
+        int imageHeight = mImageTrackDistDir.getHeight();
+        ViewGroup.LayoutParams imageParams = mImageTrackDistDir.getLayoutParams();
+        if (!mIsExpanded) {
+            imageParams.width = imageHeight * 2;
+            imageParams.height = imageHeight * 2;
+            mImageTrackDistDir.setLayoutParams(imageParams);
+            mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
+            mIsExpanded = true;
+        } else {
+            imageParams.width = imageHeight / 2;
+            imageParams.height = imageHeight / 2;
+            mImageTrackDistDir.setLayoutParams(imageParams);
+            mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
+            mIsExpanded = false;
+        }
     }
 
     @Override
