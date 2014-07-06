@@ -7,5 +7,6 @@
     <string name="button_next">next pass</string>
     <string name="button_A">setA</string>
     <string name="button_B">setB</string>
+    <string name="button_select_flight">flight</string>
 
 </resources>

@@ -2,6 +2,7 @@ package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -13,9 +14,12 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,13 +55,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.DialogInterface.OnClickListener;
+
 public class MainActivity extends Activity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
         LocationListener, GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = "FlightApp";
-    private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/flight1.json";
+    private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final int UPDATE_INTERVAL = 50;
     private static final int FASTEST_INTERVAL = 50;
@@ -87,6 +93,8 @@ public class MainActivity extends Activity implements
     private boolean mIsExpanded = false;
 
     private AlertDialog mGetLocationAlert;
+    private AlertDialog mRetrievingJsonAlert;
+    private Dialog mDialogFlightSelect;
     private TextView mTextCurrentLocation;
     private TextView mTextTrackDist;
     private TextView mTextPassNumber;
@@ -170,7 +178,7 @@ public class MainActivity extends Activity implements
                     .setMessage("Please Wait...")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setCancelable(false)
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(android.R.string.no, new OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
@@ -179,16 +187,14 @@ public class MainActivity extends Activity implements
 
             mGetLocationAlert.show();
 
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        retrieveAndAddCities();
-                    } catch (IOException e) {
-                        Log.e(TAG, "Cannot retrieve data", e);
-                        return;
-                    }
-                }
-            }).start();
+            mRetrievingJsonAlert = new AlertDialog.Builder(this)
+                    .setTitle("Retrieving flight plan")
+                    .setMessage("Please Wait...")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setCancelable(false)
+                    .create();
+
+            mGetLocationAlert.show();
         } else {
             mLayoutArrow.setVisibility(View.INVISIBLE);
             mToggleFlightLine.setVisibility(View.INVISIBLE);
@@ -268,12 +274,12 @@ public class MainActivity extends Activity implements
         }
     }
 
-    protected void retrieveAndAddCities() throws IOException {
+    protected void retrieveAndAddCities(String flight) throws IOException {
         HttpURLConnection conn = null;
         final StringBuilder json = new StringBuilder();
         try {
             // Connect to the web service
-            URL url = new URL(SERVICE_URL);
+            URL url = new URL(SERVICE_URL + flight + ".json");
             conn = (HttpURLConnection) url.openConnection();
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
 
@@ -308,6 +314,10 @@ public class MainActivity extends Activity implements
     void createMarkersFromJson(String json) throws JSONException {
         JSONObject jsonObj = new JSONObject(json);
         JSONArray features = jsonObj.getJSONArray("features");
+        for (Marker marker : mFlightMarkers) {
+            marker.remove();
+        }
+        mFlightMarkers.clear();
         for (int i = 0; i < features.length(); i++) {
             JSONObject feature = features.getJSONObject(i);
             JSONObject geometry = feature.getJSONObject("geometry");
@@ -396,6 +406,42 @@ public class MainActivity extends Activity implements
                 marker.setVisible(isChecked);
             }
         }
+    }
+
+    public void onClickButtonSelectFlight(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Flight Plan");
+        final Toast toast = Toast.makeText(this, "flight plan loaded", Toast.LENGTH_SHORT);
+        final ListView flightList = new ListView(this);
+        final String[] flightArray = new String[] { "flight1", "flight2" };
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, flightArray);
+        flightList.setAdapter(modeAdapter);
+
+        flightList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                mRetrievingJsonAlert.show();
+                final String flight = flightArray[i];
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            retrieveAndAddCities(flight);
+                            mRetrievingJsonAlert.dismiss();
+                            mDialogFlightSelect.dismiss();
+                            toast.show();
+                        } catch (IOException e) {
+                            Log.e(TAG, "Cannot retrieve data", e);
+                            return;
+                        }
+                    }
+                }).start();
+            }
+        });
+
+        builder.setView(flightList);
+        mDialogFlightSelect = builder.create();
+
+        mDialogFlightSelect.show();
     }
 
     public void onClickButtonA(View view) {
