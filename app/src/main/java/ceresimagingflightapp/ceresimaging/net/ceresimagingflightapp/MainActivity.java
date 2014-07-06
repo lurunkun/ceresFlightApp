@@ -454,11 +454,6 @@ public class MainActivity extends Activity implements
             if (mPathLine != null) {
                 mPathLine.setVisible(false);
             }
-            if (IS_DEV) {
-                TextView locationA = (TextView) findViewById(R.id.text_point_A);
-                locationA.setText(mLocationA.getLatitude() + " " + mLocationA.getLongitude());
-            }
-
         }
     }
 
@@ -502,10 +497,6 @@ public class MainActivity extends Activity implements
                     mMarkerB.setPosition(mInterpB);
                 } else {
                     mPathLine = mMap.addPolyline(pathOptions);
-                }
-                if (IS_DEV) {
-                    TextView locationB = (TextView) findViewById(R.id.text_point_B);
-                    locationB.setText(mLocationB.getLatitude() + " " + mLocationB.getLongitude());
                 }
             }
         }
