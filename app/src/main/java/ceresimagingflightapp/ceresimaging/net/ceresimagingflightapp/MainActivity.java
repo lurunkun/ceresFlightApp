@@ -389,6 +389,15 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void onToggleMarkers(View view) {
+        boolean isChecked = ((ToggleButton) view).isChecked();
+        if (mMap != null && mFlightMarkers != null) {
+            for (Marker marker : mFlightMarkers) {
+                marker.setVisible(isChecked);
+            }
+        }
+    }
+
     public void onClickButtonA(View view) {
         if (mMap != null) {
             mLocationA = mLocationClient.getLastLocation();
@@ -430,12 +439,6 @@ public class MainActivity extends Activity implements
                             .position(mInterpB));
                     mMarkerB.setTitle("interpB");
                 }
-//            if (IS_DEV) {
-//                mMap.addMarker(new MarkerOptions()
-//                        .position(mInterpA)).setTitle("interp A");
-//                mMap.addMarker(new MarkerOptions()
-//                        .position(mInterpB)).setTitle("interp B");
-//            }
 
                 PolylineOptions pathOptions = new PolylineOptions()
                         .width(10)
