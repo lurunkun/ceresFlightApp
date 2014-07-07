@@ -114,13 +114,19 @@ public class MainActivity extends Activity implements
         double distAC = SphericalUtil.computeDistanceBetween(a, current);
         double bearingAC = SphericalUtil.computeHeading(a, current);
         double bearingAB = SphericalUtil.computeHeading(a, b);
-        bearingAC = Math.toRadians(bearingAC);
-        bearingAB = Math.toRadians(bearingAB);
-        double trackDist = Math.asin(Math.sin(distAC/R) * Math.sin(bearingAC - bearingAB)) * R;
+        double bearingRadAC = Math.toRadians(bearingAC);
+        double bearingRadAB = Math.toRadians(bearingAB);
+        double trackDist = Math.asin(Math.sin(distAC/R) * Math.sin(bearingRadAC - bearingRadAB)) * R;
+        if (bearingAB < 0) {
+            bearingAB += 360;
+        }
         double angleDiff = Math.abs(currentHeading - bearingAB) % 360;
+        angleDiff = angleDiff > 180 ? 360 - angleDiff : angleDiff;
         if (angleDiff > 90) {
             trackDist = trackDist * -1;
         }
+        Log.e(TAG, Double.toString(bearingAB));
+        Log.e(TAG, Double.toString(angleDiff));
         return trackDist;
     }
 
@@ -266,11 +272,11 @@ public class MainActivity extends Activity implements
 
     public void displayTrackDist(double trackDist) {
         if (trackDist > 0) {
-            mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
-        } else {
             mImageTrackDistDir.setImageDrawable(mDrawableLeft);
             mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'L');
+        } else {
+            mImageTrackDistDir.setImageDrawable(mDrawableRight);
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
         }
     }
 
@@ -606,6 +612,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        location.setBearing(50);
         TextView textBearing = (TextView) findViewById(R.id.text_bearing);
         textBearing.setText(Float.toString(location.getBearing()));
         mLocationCurrent = location;
