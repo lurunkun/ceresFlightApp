@@ -466,8 +466,8 @@ public class MainActivity extends Activity implements
                 view.setBackgroundColor(Color.RED);
                 LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
                 LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
-                mInterpA = SphericalUtil.computeOffset(pointB, 500, SphericalUtil.computeHeading(pointB, pointA));
-                mInterpB = SphericalUtil.computeOffset(pointA, 500, SphericalUtil.computeHeading(pointA, pointB));
+                mInterpA = SphericalUtil.computeOffset(pointB, 500, SphericalUtil.computeHeading(pointA, pointB));
+                mInterpB = SphericalUtil.computeOffset(pointA, 500, SphericalUtil.computeHeading(pointB, pointA));
 
                 if (mMarkerA != null && mMarkerB != null) {
                     mMarkerA.setPosition(mInterpA);
@@ -606,7 +606,8 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.e(TAG, location.toString());
+        TextView textBearing = (TextView) findViewById(R.id.text_bearing);
+        textBearing.setText(Float.toString(location.getBearing()));
         mLocationCurrent = location;
         if (mLocationCurrent != null) {
             mGetLocationAlert.dismiss();
