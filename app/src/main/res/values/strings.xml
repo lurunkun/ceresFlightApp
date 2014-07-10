@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="app_name">Ceres Imaging</string>
-    <string name="hello_world">Hello world!</string>
     <string name="button_prev">prev pass</string>
     <string name="button_next">next pass</string>
     <string name="button_A">setA</string>
     <string name="button_B">setB</string>
     <string name="button_select_flight">flight</string>
+    <string name="on_back_button_title">exit</string>
+    <string name="on_back_button_message">are you sure you want to exit?</string>
 
 </resources>

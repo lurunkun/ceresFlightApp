@@ -264,6 +264,26 @@ public class MainActivity extends Activity implements
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        final Activity activity = this;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.on_back_button_title);
+        builder.setMessage(R.string.on_back_button_message);
+        builder.setPositiveButton(R.string.yes, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                activity.finish();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
+    }
+
     void showErrorDialog(int code) {
         GooglePlayServicesUtil.getErrorDialog(code, this,
                 REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
