@@ -73,6 +73,16 @@
                 android:layout_weight="1" />
 
             <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/button_gamma"
+                android:id="@+id/button_gamma"
+                android:layout_weight="0.5"
+                android:clickable="true"
+                android:onClick="onClickButtonGamma" />
+
+            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/button_select_flight"

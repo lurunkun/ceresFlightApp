@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -98,6 +100,7 @@ public class MainActivity extends Activity implements
     private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
     private boolean mIsExpanded = false;
+    private double mGamma = 0.9;
 
     private AlertDialog mGetLocationAlert;
     private AlertDialog mRetrievingJsonAlert;
@@ -305,6 +308,18 @@ public class MainActivity extends Activity implements
             mImageTrackDistDir.setImageDrawable(mDrawableRight);
             mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
         }
+    }
+
+    private Location filterPosition(Location current, Location prev, final double GAMMA) {
+        double lat = current.getLatitude();
+        double lng = current.getLongitude();
+        double prevLat = prev.getLatitude();
+        double prevLng = prev.getLongitude();
+        double newLat = lat*GAMMA + prevLat*(1 - GAMMA);
+        double newLng = lng*GAMMA + prevLng*(1 - GAMMA);
+        current.setLatitude(newLat);
+        current.setLongitude(newLng);
+        return current;
     }
 
     protected void retrieveAndAddCities(String flight) throws IOException {
@@ -594,6 +609,25 @@ public class MainActivity extends Activity implements
         distSlider.setLayoutParams(params);
     }
 
+    public void onClickButtonGamma(View view) {
+        final EditText input = new EditText(this);
+        input.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        new AlertDialog.Builder(this)
+                .setMessage("enter gamma")
+                .setView(input)
+                .setPositiveButton("Ok", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mGamma = Double.parseDouble(input.getText().toString());
+                    }
+                })
+                .setNegativeButton("Cancel", new OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                }).show();
+    }
+
     public void onClickLayoutArrow(View view) {
         int imageHeight = mImageTrackDistDir.getHeight();
         ViewGroup.LayoutParams imageParams = mImageTrackDistDir.getLayoutParams();
@@ -664,16 +698,18 @@ public class MainActivity extends Activity implements
         textBearing.setText(Float.toString(location.getBearing()));
         mLocationCurrent = location;
         if (mLocationCurrent != null) {
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
-            LatLng current = new LatLng(lat, lng);
             mGetLocationAlert.dismiss();
             if (mLocationPrev == null) {
-                mLocationPrev = mLocationCurrent;
+                mLocationPrev = location;
             }
+            // filter
+            mLocationCurrent = filterPosition(location, mLocationPrev, mGamma);
+
+            double lat = mLocationCurrent.getLatitude();
+            double lng = mLocationCurrent.getLongitude();
+            LatLng current = new LatLng(lat, lng);
             LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
             location.setBearing((float) SphericalUtil.computeHeading(prev, current));
-            mLocationCurrent = location;
             mLocationPrev = mLocationCurrent;
             if (mCurrentMarker == null) {
                 Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
@@ -694,7 +730,7 @@ public class MainActivity extends Activity implements
         double lng = location.getLongitude();
         mCurrentLatLng = new LatLng(lat, lng);
         if (IS_DEV) {
-            mTextCurrentLocation.setText(lat + ", " + lng);
+            mTextCurrentLocation.setText((double)Math.round(lat*1000)/1000 + ", " + (double)Math.round(lng*1000)/1000);
         }
         if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
             double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
