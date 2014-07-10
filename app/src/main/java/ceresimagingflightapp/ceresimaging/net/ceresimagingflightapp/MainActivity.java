@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -81,6 +82,7 @@ public class MainActivity extends Activity implements
     private Marker mMarkerA;
     private Marker mMarkerB;
     private Polyline mPathLine;
+    private int mPathDir = 1;
     private int mShiftDist = (int) Math.round(MainActivity.toMeters(850));
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
@@ -511,8 +513,13 @@ public class MainActivity extends Activity implements
     public void onClickButtonPrev(View view) {
         if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
-            mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading + 90);
-            mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading + 90);
+            if (heading > -90 && heading < 90) {
+                heading -= 90*mPathDir;
+            } else {
+                heading += 90*mPathDir;
+            }
+            mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
+            mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
             List<LatLng> newPoints = mPathLine.getPoints();
             newPoints.clear();
             newPoints.add(mInterpA);
@@ -530,8 +537,13 @@ public class MainActivity extends Activity implements
     public void onClickButtonNext(View view) {
         if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
-            mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading - 90);
-            mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading - 90);
+            if (heading > -90 && heading < 90) {
+                heading += 90*mPathDir;
+            } else {
+                heading -= 90*mPathDir;
+            }
+            mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
+            mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
             List<LatLng> newPoints = mPathLine.getPoints();
             newPoints.clear();
             newPoints.add(mInterpA);
@@ -575,6 +587,17 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void onClickSwitchDirection(View view) {
+        if (mMap != null) {
+            boolean right = ((Switch) view).isChecked();
+            if (right) {
+                mPathDir = 1;
+            } else {
+                mPathDir = -1;
+            }
+        }
+    }
+
     @Override
     public boolean onMarkerClick(final Marker marker) {
         if (mFlightMarkers.contains(marker)){
@@ -612,7 +635,6 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        location.setBearing(50);
         TextView textBearing = (TextView) findViewById(R.id.text_bearing);
         textBearing.setText(Float.toString(location.getBearing()));
         mLocationCurrent = location;

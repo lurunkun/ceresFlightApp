@@ -201,6 +201,17 @@
             android:layout_weight="1"
             android:layout_marginRight="10dp" />
 
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/switch_direction"
+            android:layout_weight="1"
+            android:textOn="right"
+            android:textOff="left"
+            android:layout_marginRight="10dp"
+            android:checked="true"
+            android:onClick="onClickSwitchDirection" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
