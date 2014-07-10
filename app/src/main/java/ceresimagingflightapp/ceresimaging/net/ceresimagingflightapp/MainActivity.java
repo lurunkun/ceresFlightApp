@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -76,6 +79,7 @@ public class MainActivity extends Activity implements
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
     private Location mLocationPrev;
+    private Marker mCurrentMarker;
     private Location mLocationA;
     private Location mLocationB;
     private LatLng mInterpA;
@@ -180,7 +184,7 @@ public class MainActivity extends Activity implements
         if (checkPlayServices()) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
-            mMap.setMyLocationEnabled(true);
+//            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
             mGetLocationAlert = new AlertDialog.Builder(this)
                     .setTitle("retrieving location")
@@ -640,14 +644,31 @@ public class MainActivity extends Activity implements
         textBearing.setText(Float.toString(location.getBearing()));
         mLocationCurrent = location;
         if (mLocationCurrent != null) {
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            LatLng current = new LatLng(lat, lng);
             mGetLocationAlert.dismiss();
             if (mLocationPrev == null) {
                 mLocationPrev = mLocationCurrent;
             }
             LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
-            location.setBearing((float) SphericalUtil.computeHeading(prev,
-                    new LatLng(mLocationCurrent.getLatitude(), mLocationCurrent.getLongitude())));
+            location.setBearing((float) SphericalUtil.computeHeading(prev, current));
+            mLocationCurrent = location;
             mLocationPrev = mLocationCurrent;
+            if (mCurrentMarker == null) {
+                Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
+                Bitmap arrowBm = ((BitmapDrawable) arrow).getBitmap();
+                arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/5, arrowBm.getHeight()/5, true);
+                mCurrentMarker = mMap.addMarker(new MarkerOptions()
+                        .position(current)
+                        .flat(true)
+                        .anchor((float) 0.5, (float) 0.8)
+                        .rotation(mLocationCurrent.getBearing())
+                        .icon(BitmapDescriptorFactory.fromBitmap(arrowBm)));
+            } else {
+                mCurrentMarker.setPosition(current);
+                mCurrentMarker.setRotation(mLocationCurrent.getBearing());
+            }
         }
         double lat = location.getLatitude();
         double lng = location.getLongitude();
