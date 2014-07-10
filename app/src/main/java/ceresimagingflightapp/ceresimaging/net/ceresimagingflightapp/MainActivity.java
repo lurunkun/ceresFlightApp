@@ -75,6 +75,7 @@ public class MainActivity extends Activity implements
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
+    private Location mLocationPrev;
     private Location mLocationA;
     private Location mLocationB;
     private LatLng mInterpA;
@@ -640,6 +641,13 @@ public class MainActivity extends Activity implements
         mLocationCurrent = location;
         if (mLocationCurrent != null) {
             mGetLocationAlert.dismiss();
+            if (mLocationPrev == null) {
+                mLocationPrev = mLocationCurrent;
+            }
+            LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
+            location.setBearing((float) SphericalUtil.computeHeading(prev,
+                    new LatLng(mLocationCurrent.getLatitude(), mLocationCurrent.getLongitude())));
+            mLocationPrev = mLocationCurrent;
         }
         double lat = location.getLatitude();
         double lng = location.getLongitude();
