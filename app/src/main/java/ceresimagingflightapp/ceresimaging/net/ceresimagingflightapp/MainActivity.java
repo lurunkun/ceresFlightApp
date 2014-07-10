@@ -639,7 +639,7 @@ public class MainActivity extends Activity implements
             mToggleFlightLine.setChecked(true);
             mIsFlightLineVis = true;
         }
-        return true;
+        return false;
     }
 
 
