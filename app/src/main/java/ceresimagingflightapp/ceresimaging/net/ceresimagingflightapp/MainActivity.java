@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 
 import org.json.JSONArray;
@@ -66,7 +67,7 @@ import static android.content.DialogInterface.OnClickListener;
 public class MainActivity extends Activity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        LocationListener, GoogleMap.OnMarkerClickListener {
+        LocationListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/";
@@ -93,6 +94,7 @@ public class MainActivity extends Activity implements
     private int mShiftDist = (int) Math.round(MainActivity.toMeters(850));
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
+    private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
 
@@ -189,6 +191,7 @@ public class MainActivity extends Activity implements
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
 //            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
+            mMap.setOnMapClickListener(this);
             mGetLocationAlert = new AlertDialog.Builder(this)
                     .setTitle("retrieving location")
                     .setMessage("Please Wait...")
@@ -366,10 +369,15 @@ public class MainActivity extends Activity implements
             marker.remove();
         }
         mFlightMarkers.clear();
+        for (Polygon polygon : mFlightPolygons) {
+            polygon.remove();
+        }
+        mFlightMarkers.clear();
         for (int i = 0; i < features.length(); i++) {
             JSONObject feature = features.getJSONObject(i);
             JSONObject geometry = feature.getJSONObject("geometry");
-            String name = feature.getJSONObject("properties").getString("name");
+            String name = feature.getJSONObject("properties").getString("Name");
+            String altitude = feature.getJSONObject("properties").getString("Description");
 
             JSONArray coords = geometry.getJSONArray("coordinates");
             // if feature is a point
@@ -377,6 +385,7 @@ public class MainActivity extends Activity implements
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(coords.getDouble(1), coords.getDouble(0))));
                 marker.setTitle(name);
+                marker.setSnippet("alt: " + altitude);
                 mFlightMarkers.add(marker);
             // if feature is polygon
             } else if (geometry.getString("type").equals("Polygon")) {
@@ -388,6 +397,7 @@ public class MainActivity extends Activity implements
                 }
                 options.strokeColor(Color.BLUE).fillColor(Color.TRANSPARENT);
                 Polygon polygon = mMap.addPolygon(options);
+                mFlightPolygons.add(polygon);
             }
         }
     }
@@ -493,8 +503,17 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonA(View view) {
+        this.onClickButtonA(view, null);
+    }
+    public void onClickButtonA(View view, LatLng point) {
         if (mMap != null) {
-            mLocationA = mLocationClient.getLastLocation();
+            if (point != null) {
+                mLocationA = new Location("");
+                mLocationA.setLongitude(point.longitude);
+                mLocationA.setLatitude(point.latitude);
+            } else {
+                mLocationA = mLocationClient.getLastLocation();
+            }
             mPassNumber = 0;
             view.setBackgroundColor(Color.RED);
             Button button_B = (Button) findViewById(R.id.button_B);
@@ -506,16 +525,25 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonB(View view) {
+        this.onClickButtonB(view, null);
+    }
+    public void onClickButtonB(View view, LatLng point) {
         if (mMap != null) {
             if (mLocationA != null){
                 mPassNumber = 0;
                 mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
-                mLocationB = mLocationClient.getLastLocation();
+                if (point != null) {
+                    mLocationB = new Location("");
+                    mLocationB.setLongitude(point.longitude);
+                    mLocationB.setLatitude(point.latitude);
+                } else {
+                    mLocationB = mLocationClient.getLastLocation();
+                }
                 view.setBackgroundColor(Color.RED);
                 LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
                 LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
-                mInterpA = SphericalUtil.computeOffset(pointB, 500, SphericalUtil.computeHeading(pointA, pointB));
-                mInterpB = SphericalUtil.computeOffset(pointA, 500, SphericalUtil.computeHeading(pointB, pointA));
+                mInterpA = SphericalUtil.computeOffset(pointB, 1500, SphericalUtil.computeHeading(pointA, pointB));
+                mInterpB = SphericalUtil.computeOffset(pointA, 1500, SphericalUtil.computeHeading(pointB, pointA));
 
                 if (mMarkerA != null && mMarkerB != null) {
                     mMarkerA.setPosition(mInterpA);
@@ -676,6 +704,46 @@ public class MainActivity extends Activity implements
         return false;
     }
 
+    @Override
+    public void onMapClick(LatLng clickLatLng) {
+        for (Polygon polygon : mFlightPolygons) {
+            List<LatLng> points = polygon.getPoints();
+            if (PolyUtil.isLocationOnEdge(clickLatLng, polygon.getPoints(), false, 1000)) {
+                polygon.setFillColor(Color.YELLOW);
+                LatLng pointA;
+                LatLng pointB;
+                if (SphericalUtil.computeDistanceBetween(points.get(0), clickLatLng) <
+                        SphericalUtil.computeDistanceBetween(points.get(1), clickLatLng)) {
+                    pointA = points.get(0);
+                    pointB = points.get(1);
+                } else {
+                    pointB = points.get(0);
+                    pointA = points.get(1);
+                }
+                double shortestDist = 1000;
+                double secondShortestDist = 1000;
+                for (LatLng point : points) {
+                    double dist = SphericalUtil.computeDistanceBetween(point, clickLatLng);
+                    if (dist < shortestDist) {
+                        secondShortestDist = shortestDist;
+                        pointB = pointA;
+                        shortestDist = dist;
+                        pointA = point;
+                    } else if (dist < secondShortestDist) {
+                        secondShortestDist = dist;
+                        pointB = point;
+                    }
+                }
+                if (pointA != null && pointB != null) {
+                    this.onClickButtonA(findViewById(R.id.button_A), pointA);
+                    this.onClickButtonB(findViewById(R.id.button_B), pointB);
+                }
+            } else {
+                polygon.setFillColor(Color.TRANSPARENT);
+            }
+        }
+    }
+
 
     @Override
     public void onConnected(Bundle dataBundle) {
@@ -760,7 +828,6 @@ public class MainActivity extends Activity implements
             mFlightLine.setPoints(points);
         }
     }
-
 
 }
 
