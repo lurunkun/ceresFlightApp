@@ -72,8 +72,8 @@ public class MainActivity extends Activity implements
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final int UPDATE_INTERVAL = 50;
-    private static final int FASTEST_INTERVAL = 50;
+    private static final int UPDATE_INTERVAL = 100;
+    private static final int FASTEST_INTERVAL = 100;
     private static final boolean IS_DEV = true;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
@@ -555,6 +555,8 @@ public class MainActivity extends Activity implements
                     mMarkerB = mMap.addMarker(new MarkerOptions()
                             .position(mInterpB));
                     mMarkerB.setTitle("interpB");
+                    mMarkerA.setVisible(false);
+                    mMarkerB.setVisible(false);
                 }
 
                 PolylineOptions pathOptions = new PolylineOptions()
@@ -706,44 +708,43 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onMapClick(LatLng clickLatLng) {
+        Location clickLocation = new Location(mLocationCurrent);
+        clickLocation.setLongitude(clickLatLng.longitude);
+        clickLocation.setLatitude(clickLatLng.latitude);
         for (Polygon polygon : mFlightPolygons) {
             List<LatLng> points = polygon.getPoints();
             if (PolyUtil.isLocationOnEdge(clickLatLng, polygon.getPoints(), false, 1000)) {
-                polygon.setFillColor(Color.YELLOW);
-                LatLng pointA;
-                LatLng pointB;
-                if (SphericalUtil.computeDistanceBetween(points.get(0), clickLatLng) <
-                        SphericalUtil.computeDistanceBetween(points.get(1), clickLatLng)) {
-                    pointA = points.get(0);
-                    pointB = points.get(1);
-                } else {
-                    pointB = points.get(0);
-                    pointA = points.get(1);
-                }
-                double shortestDist = 1000;
-                double secondShortestDist = 1000;
-                for (LatLng point : points) {
-                    double dist = SphericalUtil.computeDistanceBetween(point, clickLatLng);
-                    if (dist < shortestDist) {
-                        secondShortestDist = shortestDist;
-                        pointB = pointA;
-                        shortestDist = dist;
-                        pointA = point;
-                    } else if (dist < secondShortestDist) {
-                        secondShortestDist = dist;
-                        pointB = point;
+                LatLng pointA = null;
+                LatLng pointB = null;
+                double minDist = 1000;
+                for (int i=0; i < points.size() - 1; i++){
+                    double dist = Math.abs(this.getTrackDist(points.get(i), points.get(i + 1), clickLocation));
+                    List<LatLng> line = new ArrayList<LatLng>();
+                    line.add(points.get(i));
+                    line.add(points.get(i+1));
+                    if (dist < minDist && PolyUtil.isLocationOnPath(clickLatLng, line, false, 500 )) {
+                        minDist = dist;
+                        pointA = points.get(i);
+                        pointB = points.get(i+1);
                     }
+                }
+                double dist = Math.abs(this.getTrackDist(points.get(0), points.get(points.size() - 1), clickLocation));
+                List<LatLng> line = new ArrayList<LatLng>();
+                line.add(points.get(0));
+                line.add(points.get(points.size()-1));
+                if (dist < minDist && PolyUtil.isLocationOnPath(clickLatLng, line, false, 500 )) {
+                    minDist = dist;
+                    pointA = points.get(0);
+                    pointB = points.get(points.size()-1);
                 }
                 if (pointA != null && pointB != null) {
                     this.onClickButtonA(findViewById(R.id.button_A), pointA);
                     this.onClickButtonB(findViewById(R.id.button_B), pointB);
                 }
             } else {
-                polygon.setFillColor(Color.TRANSPARENT);
             }
         }
     }
-
 
     @Override
     public void onConnected(Bundle dataBundle) {
