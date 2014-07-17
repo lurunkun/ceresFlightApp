@@ -52,69 +52,69 @@
         android:clickable="true"
         android:onClick="onClickLayoutArrow">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal">
-
-            <TextView
-                android:id="@+id/current_location"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textColor="#ff00ff56"
-                android:textStyle="bold"
-                android:layout_weight="1" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="New Text"
-                android:id="@+id/text_bearing"
-                android:layout_weight="1" />
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
 
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/button_gamma"
                 android:id="@+id/button_gamma"
-                android:layout_weight="0.5"
                 android:clickable="true"
-                android:onClick="onClickButtonGamma" />
+                android:onClick="onClickButtonGamma"
+                android:layout_alignParentRight="false"
+                android:layout_alignParentLeft="true" />
 
             <Button
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/button_select_flight"
                 android:id="@+id/button_select_flight"
                 android:clickable="true"
                 android:onClick="onClickButtonSelectFlight"
-                android:layout_weight="1" />
-        </LinearLayout>
+                android:layout_alignParentRight="true" />
 
-        <ImageView
-            android:layout_width="50sp"
-            android:layout_height="50sp"
-            android:id="@+id/image_trackDist_direction"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_forward"
-            android:contentDescription="direction"
-            android:layout_gravity="center"
-            android:scaleType="fitXY" />
+            <ImageView
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:id="@+id/image_trackDist_direction"
+                android:src="@drawable/ic_action_forward"
+                android:contentDescription="direction"
+                android:layout_gravity="center"
+                android:scaleType="fitXY"
+                android:layout_centerHorizontal="true"
+                android:padding="0dp" />
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="0"
-            android:id="@+id/text_track_dist"
-            android:layout_weight="1"
-            android:textSize="50sp"
-            android:textIsSelectable="false"
-            android:textColor="#ff0000"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:freezesText="true"
-            android:layout_gravity="center_horizontal" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/text_track_dist"
+                android:textSize="50sp"
+                android:textIsSelectable="false"
+                android:textColor="#ff0000"
+                android:textStyle="bold"
+                android:lineSpacingExtra="-12dp"
+                android:gravity="center"
+                android:freezesText="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/image_trackDist_direction"
+                android:layout_marginTop="-15dp"
+                android:singleLine="false" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/switch_direction"
+                android:textOn="right"
+                android:textOff="left"
+                android:checked="true"
+                android:onClick="onClickSwitchDirection"
+                android:layout_toRightOf="@+id/button_gamma" />
+        </RelativeLayout>
 
     </LinearLayout>
 
@@ -141,7 +141,8 @@
             android:textOff="follow"
             android:textOn="follow"
             android:onClick="onToggleCurrentLocation"
-            android:theme="@style/Bubble.TextAppearance.Light" />
+            android:theme="@style/Bubble.TextAppearance.Light"
+            android:checked="true" />
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -179,8 +180,8 @@
             android:onClick="onToggleFlightLine" />
 
         <Button
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:text="@string/button_A"
             android:id="@+id/button_A"
             android:clickable="true"
@@ -188,25 +189,14 @@
             android:layout_gravity="left|bottom" />
 
         <Button
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:text="@string/button_B"
             android:id="@+id/button_B"
             android:clickable="true"
             android:onClick="onClickButtonB"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="70dp" />
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/switch_direction"
-            android:textOn="right"
-            android:textOff="left"
-            android:layout_marginRight="120dp"
-            android:checked="true"
-            android:onClick="onClickSwitchDirection"
-            android:layout_gravity="bottom|right" />
+            android:layout_marginLeft="90dp" />
 
         <Button
             android:layout_width="65dp"
@@ -217,6 +207,26 @@
             android:onClick="onClickButtonToggleSlider"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="60dp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/current_location"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#ff00ff56"
+                android:textStyle="bold"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="New Text"
+                android:id="@+id/text_bearing"
+                android:layout_weight="1" />
+        </FrameLayout>
 
     </FrameLayout>
 

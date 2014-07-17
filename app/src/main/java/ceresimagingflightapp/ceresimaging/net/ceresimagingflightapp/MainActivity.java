@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
     private static final int UPDATE_INTERVAL = 100;
     private static final int FASTEST_INTERVAL = 100;
-    private static final boolean IS_DEV = true;
+    private static final boolean IS_DEV = false;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
@@ -417,7 +417,7 @@ public class MainActivity extends Activity implements
                             .target(mCurrentLatLng)
                             .zoom(zoom).build();
                 }
-                mMap.animateCamera(CameraUpdateFactory
+                mMap.moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
             } else {
 
@@ -435,14 +435,14 @@ public class MainActivity extends Activity implements
                     cameraPosition = new CameraPosition.Builder()
                             .target(mCurrentLatLng)
                             .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
             } else {
                 float zoom = mMap.getCameraPosition().zoom;
                 cameraPosition = new CameraPosition.Builder()
                         .target(mCurrentLatLng)
                         .zoom(zoom).bearing(0).build();
-                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
 
         }
@@ -852,7 +852,7 @@ public class MainActivity extends Activity implements
                         .zoom(zoom)
                         .build();
             }
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
         if (mFlightLine != null) {
             List<LatLng> points = new ArrayList<LatLng>();
