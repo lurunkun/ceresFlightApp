@@ -12,5 +12,6 @@
     <string name="button_select_flight">flight</string>
     <string name="on_back_button_title">exit</string>
     <string name="on_back_button_message">are you sure you want to exit?</string>
+    <string name="polygon_edge_select_message">select this edge?</string>
 
 </resources>

@@ -738,8 +738,40 @@ public class MainActivity extends Activity implements
                     pointB = points.get(points.size()-1);
                 }
                 if (pointA != null && pointB != null) {
-                    this.onClickButtonA(findViewById(R.id.button_A), pointA);
-                    this.onClickButtonB(findViewById(R.id.button_B), pointB);
+                    PolylineOptions pathOptions = new PolylineOptions()
+                            .width(10)
+                            .color(Color.MAGENTA)
+                            .add(pointA)
+                            .add(pointB);
+                    final Polyline tempLine = mMap.addPolyline(pathOptions);
+
+                    // show confirm
+                    final LatLng finalPointA = pointA;
+                    final LatLng finalPointB = pointB;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setMessage(R.string.polygon_edge_select_message);
+                    builder.setPositiveButton(R.string.yes, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            onClickButtonA(findViewById(R.id.button_A), finalPointA);
+                            onClickButtonB(findViewById(R.id.button_B), finalPointB);
+                            tempLine.remove();
+                        }
+                    });
+                    builder.setNegativeButton(R.string.no, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            tempLine.remove();
+                        }
+                    });
+                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            tempLine.remove();
+                        }
+                    });
+                    builder.show();
+
                 }
             } else {
             }

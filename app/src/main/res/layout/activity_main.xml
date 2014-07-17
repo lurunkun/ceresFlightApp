@@ -178,6 +178,46 @@
             android:checked="true"
             android:onClick="onToggleFlightLine" />
 
+        <Button
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:text="@string/button_A"
+            android:id="@+id/button_A"
+            android:clickable="true"
+            android:onClick="onClickButtonA"
+            android:layout_gravity="left|bottom" />
+
+        <Button
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:text="@string/button_B"
+            android:id="@+id/button_B"
+            android:clickable="true"
+            android:onClick="onClickButtonB"
+            android:layout_gravity="bottom"
+            android:layout_marginLeft="70dp" />
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/switch_direction"
+            android:textOn="right"
+            android:textOff="left"
+            android:layout_marginRight="120dp"
+            android:checked="true"
+            android:onClick="onClickSwitchDirection"
+            android:layout_gravity="bottom|right" />
+
+        <Button
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:text="850ft"
+            android:id="@+id/button_toggle_slider"
+            android:clickable="true"
+            android:onClick="onClickButtonToggleSlider"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="60dp" />
+
     </FrameLayout>
 
     <SeekBar
@@ -190,46 +230,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_A"
-            android:id="@+id/button_A"
-            android:clickable="true"
-            android:onClick="onClickButtonA"
-            android:layout_weight="1"
-            android:layout_marginRight="10dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_B"
-            android:id="@+id/button_B"
-            android:clickable="true"
-            android:onClick="onClickButtonB"
-            android:layout_weight="1"
-            android:layout_marginRight="10dp" />
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/switch_direction"
-            android:layout_weight="1"
-            android:textOn="right"
-            android:textOff="left"
-            android:layout_marginRight="10dp"
-            android:checked="true"
-            android:onClick="onClickSwitchDirection" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="850ft"
-            android:id="@+id/button_toggle_slider"
-            android:clickable="true"
-            android:onClick="onClickButtonToggleSlider"
-            android:layout_weight="1" />
 
     </LinearLayout>
 
