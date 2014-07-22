@@ -775,15 +775,15 @@ public class MainActivity extends Activity implements
                     } else {
                         heading -= 90*mPathDir;
                     }
-                    mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
-                    mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
+                    LatLng newPointA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
+                    LatLng newPointB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
                     // check dist to center of polygon
                     LatLng polygonCenter = MainActivity.getPolyCenter(points);
                     Location center = new Location("");
                     center.setLongitude(polygonCenter.longitude);
                     center.setLatitude(polygonCenter.latitude);
                     double centerToPoint = MainActivity.getTrackDist(pointA, pointB, center);
-                    double centerToNewPoint = MainActivity.getTrackDist(mInterpA, mInterpB, center);
+                    double centerToNewPoint = MainActivity.getTrackDist(newPointA, newPointB, center);
                     if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
                         mPathDir = mPathDir * -1;
                     }
