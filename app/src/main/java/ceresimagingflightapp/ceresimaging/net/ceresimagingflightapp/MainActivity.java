@@ -103,11 +103,13 @@ public class MainActivity extends Activity implements
     private boolean mIsFlightLineVis = true;
     private boolean mIsExpanded = false;
     private boolean mIsLocked = false;
-    private double mGamma = 0.9;
+    private double mGamma = 0.98;
 
     private AlertDialog mGetLocationAlert;
     private AlertDialog mRetrievingJsonAlert;
     private Dialog mDialogFlightSelect;
+    private Dialog mDialogFlightConfirm;
+    private boolean mFlightSelectConfirmed = false;
     private TextView mTextCurrentLocation;
     private TextView mTextTrackDist;
     private TextView mTextPassNumber;
@@ -502,37 +504,69 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonSelectFlight(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Flight Plan");
-        final Toast toast = Toast.makeText(this, "flight plan loaded", Toast.LENGTH_SHORT);
-        final ListView flightList = new ListView(this);
-        final String[] flightArray = new String[] { "flight1", "flight2" };
-        ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, flightArray);
-        flightList.setAdapter(modeAdapter);
+        mFlightSelectConfirmed = false;
 
-        flightList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
-                mRetrievingJsonAlert.show();
-                final String flight = flightArray[i];
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            retrieveAndAddFlightPlan(flight);
-                            mRetrievingJsonAlert.dismiss();
-                            mDialogFlightSelect.dismiss();
-                            toast.show();
-                        } catch (IOException e) {
-                            Log.e(TAG, "Cannot retrieve data", e);
-                            return;
+        if (mDialogFlightConfirm == null) {
+            // confirm
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setMessage("select this flight plan?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mFlightSelectConfirmed = true;
                         }
-                    }
-                }).start();
-            }
-        });
+                    })
+                    .setNegativeButton(android.R.string.no, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mDialogFlightSelect.dismiss();
+                        }
+                    });
+            mDialogFlightConfirm = builder.create();
+        }
 
-        builder.setView(flightList);
-        mDialogFlightSelect = builder.create();
+        if (mDialogFlightSelect == null) {
+            // flight select
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Select Flight Plan");
+            final Toast toast = Toast.makeText(this, "flight plan loaded", Toast.LENGTH_SHORT);
+            final ListView flightList = new ListView(this);
+            final String[] flightArray = new String[] { "flight1", "flight2" };
+            ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, flightArray);
+            flightList.setAdapter(modeAdapter);
+
+            flightList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                    mDialogFlightConfirm.show();
+                    mDialogFlightConfirm.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            if (mFlightSelectConfirmed) {
+                                mRetrievingJsonAlert.show();
+                                final String flight = flightArray[i];
+                                new Thread(new Runnable() {
+                                    public void run() {
+                                        try {
+                                            retrieveAndAddFlightPlan(flight);
+                                            mRetrievingJsonAlert.dismiss();
+                                            mDialogFlightSelect.dismiss();
+                                            toast.show();
+                                        } catch (IOException e) {
+                                            Log.e(TAG, "Cannot retrieve data", e);
+                                            return;
+                                        }
+                                    }
+                                }).start();
+                            }
+                        }
+                    });
+                }
+            });
+            builder.setView(flightList);
+            mDialogFlightSelect = builder.create();
+        }
 
         mDialogFlightSelect.show();
     }
@@ -830,7 +864,7 @@ public class MainActivity extends Activity implements
             if (mCurrentMarker == null) {
                 Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
                 Bitmap arrowBm = ((BitmapDrawable) arrow).getBitmap();
-                arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/5, arrowBm.getHeight()/5, true);
+                arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/3, arrowBm.getHeight()/3, true);
                 mCurrentMarker = mMap.addMarker(new MarkerOptions()
                         .position(current)
                         .flat(true)

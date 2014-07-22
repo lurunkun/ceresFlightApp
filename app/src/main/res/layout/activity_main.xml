@@ -65,7 +65,8 @@
                 android:clickable="true"
                 android:onClick="onClickButtonGamma"
                 android:layout_alignParentRight="false"
-                android:layout_alignParentLeft="true" />
+                android:layout_alignParentLeft="true"
+                android:visibility="gone" />
 
             <Button
                 android:layout_width="wrap_content"
@@ -138,8 +139,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:textOff="follow"
-            android:textOn="follow"
+            android:textOff="follow airplane"
+            android:textOn="follow airplane"
             android:onClick="onToggleCurrentLocation"
             android:theme="@style/Bubble.TextAppearance.Light"
             android:checked="true" />
@@ -153,7 +154,8 @@
             android:layout_marginRight="70dp"
             android:onClick="onToggleRotation"
             android:textOff="rotate"
-            android:textOn="rotate" />
+            android:textOn="rotate"
+            android:visibility="gone" />
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -161,9 +163,9 @@
             android:text="New ToggleButton"
             android:id="@+id/toggle_markers"
             android:onClick="onToggleMarkers"
-            android:textOff="markers"
-            android:textOn="markers"
-            android:layout_marginRight="140dp"
+            android:textOff="field markers"
+            android:textOn="field markers"
+            android:layout_marginRight="130dp"
             android:layout_gravity="right"
             android:checked="true" />
 
@@ -173,9 +175,9 @@
             android:text="New ToggleButton"
             android:id="@+id/toggle_flight_line"
             android:layout_gravity="right"
-            android:layout_marginRight="210dp"
-            android:textOff="line"
-            android:textOn="line"
+            android:layout_marginRight="250dp"
+            android:textOff="line to field"
+            android:textOn="line to field"
             android:checked="true"
             android:onClick="onToggleFlightLine" />
 
