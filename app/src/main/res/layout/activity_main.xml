@@ -201,7 +201,7 @@
         <Button
             android:layout_width="65dp"
             android:layout_height="65dp"
-            android:text="850ft"
+            android:text="700ft"
             android:id="@+id/button_toggle_slider"
             android:clickable="true"
             android:onClick="onClickButtonToggleSlider"
