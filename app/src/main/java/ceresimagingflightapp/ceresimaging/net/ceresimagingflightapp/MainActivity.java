@@ -91,7 +91,7 @@ public class MainActivity extends Activity implements
     private Marker mMarkerB;
     private Polyline mPathLine;
     private int mPathDir = 1;
-    private int mShiftDist = (int) Math.round(MainActivity.toMeters(850));
+    private int mShiftDist = (int) Math.round(MainActivity.toMeters(700));
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
@@ -169,14 +169,14 @@ public class MainActivity extends Activity implements
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
         mSeekBarSlider = (SeekBar) findViewById(R.id.seekBar_slider);
-        mSeekBarSlider.setMax(1200);
-        mSeekBarSlider.setProgress(850);
+        mSeekBarSlider.setMax(20);
+        mSeekBarSlider.setProgress(14);
         mSeekBarSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    int feet = (int) Math.round(MainActivity.toFeet(i));
-                    mButtonToggleSeekBar.setText(Integer.toString(feet));
-                    mShiftDist = i;
+                    int meters = (int) Math.round(MainActivity.toMeters(i*50));
+                    mButtonToggleSeekBar.setText(Integer.toString(i*50));
+                    mShiftDist = meters;
                 }
             }
             public void onStartTrackingTouch(SeekBar seekBar) {

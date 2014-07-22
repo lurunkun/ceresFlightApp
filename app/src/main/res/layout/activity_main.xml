@@ -113,15 +113,17 @@
                 android:textOff="left"
                 android:checked="true"
                 android:onClick="onClickSwitchDirection"
-                android:layout_toRightOf="@+id/button_gamma" />
+                android:layout_below="@+id/button_gamma" />
 
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Switch"
+                android:text="BaseLine Lock"
                 android:id="@+id/switch_lock"
-                android:layout_toLeftOf="@+id/button_select_flight"
-                android:onClick="onCLickSwitchLock" />
+                android:onClick="onCLickSwitchLock"
+                android:layout_below="@+id/button_select_flight"
+                android:layout_alignRight="@+id/button_select_flight"
+                android:textColor="#000" />
         </RelativeLayout>
 
     </LinearLayout>
