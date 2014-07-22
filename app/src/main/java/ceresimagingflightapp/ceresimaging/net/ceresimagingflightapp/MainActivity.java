@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -97,6 +98,7 @@ public class MainActivity extends Activity implements
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
+    private String mSavedFlightPlan;
 
     private boolean mIsFollowing = false;
     private boolean mIsRotating = false;
@@ -138,8 +140,6 @@ public class MainActivity extends Activity implements
         if (angleDiff > 90) {
             trackDist = trackDist * -1;
         }
-        Log.e(TAG, Double.toString(bearingAB));
-        Log.e(TAG, Double.toString(angleDiff));
         return trackDist;
     }
 
@@ -174,7 +174,7 @@ public class MainActivity extends Activity implements
         mSeekBarSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    int meters = (int) Math.round(MainActivity.toMeters(i*50));
+                    int meters = (int) Math.round(MainActivity.toMeters(i * 50.0));
                     mButtonToggleSeekBar.setText(Integer.toString(i*50));
                     mShiftDist = meters;
                 }
@@ -223,6 +223,11 @@ public class MainActivity extends Activity implements
             toggleRotation.setVisibility(View.INVISIBLE);
         }
         initGeolocation();
+        try {
+            loadFlightPlan();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -326,7 +331,7 @@ public class MainActivity extends Activity implements
         return current;
     }
 
-    protected void retrieveAndAddCities(String flight) throws IOException {
+    protected void retrieveAndAddFlightPlan(String flight) throws IOException {
         HttpURLConnection conn = null;
         final StringBuilder json = new StringBuilder();
         try {
@@ -366,14 +371,18 @@ public class MainActivity extends Activity implements
     void createMarkersFromJson(String json) throws JSONException {
         JSONObject jsonObj = new JSONObject(json);
         JSONArray features = jsonObj.getJSONArray("features");
-        for (Marker marker : mFlightMarkers) {
-            marker.remove();
+        if (mFlightMarkers != null) {
+            for (Marker marker : mFlightMarkers) {
+                marker.remove();
+            }
+            mFlightMarkers.clear();
         }
-        mFlightMarkers.clear();
-        for (Polygon polygon : mFlightPolygons) {
-            polygon.remove();
+        if (mFlightPolygons != null) {
+            for (Polygon polygon : mFlightPolygons) {
+                polygon.remove();
+            }
+            mFlightPolygons.clear();
         }
-        mFlightMarkers.clear();
         for (int i = 0; i < features.length(); i++) {
             JSONObject feature = features.getJSONObject(i);
             JSONObject geometry = feature.getJSONObject("geometry");
@@ -400,6 +409,22 @@ public class MainActivity extends Activity implements
                 Polygon polygon = mMap.addPolygon(options);
                 mFlightPolygons.add(polygon);
             }
+        }
+        saveFlightPlan(json);
+    }
+
+    private void saveFlightPlan(String flightPlan) {
+        SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        prefsEditor.putString("flightPlan", flightPlan);
+        prefsEditor.commit();
+    }
+
+    private void loadFlightPlan() throws JSONException {
+        SharedPreferences mPrefs = getPreferences(MODE_PRIVATE);
+        String flightPlan = mPrefs.getString("flightPlan", null);
+        if (flightPlan != null) {
+            createMarkersFromJson(flightPlan);
         }
     }
 
@@ -484,7 +509,7 @@ public class MainActivity extends Activity implements
                 new Thread(new Runnable() {
                     public void run() {
                         try {
-                            retrieveAndAddCities(flight);
+                            retrieveAndAddFlightPlan(flight);
                             mRetrievingJsonAlert.dismiss();
                             mDialogFlightSelect.dismiss();
                             toast.show();
