@@ -26,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -98,7 +97,6 @@ public class MainActivity extends Activity implements
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
-    private String mSavedFlightPlan;
 
     private boolean mIsFollowing = false;
     private boolean mIsRotating = false;
@@ -148,6 +146,17 @@ public class MainActivity extends Activity implements
     }
     public static double toMeters(double distance) {
         return distance * 0.3048;
+    }
+    public static LatLng getPolyCenter(List<LatLng> polygon) {
+        double latitude = 0;
+        double longitude = 0;
+        int totalPoints = polygon.size();
+        for (int i = 0; i < polygon.size(); i++ ) {
+            latitude  += polygon.get(i).latitude;
+            longitude += polygon.get(i).longitude;
+        }
+        LatLng center = new LatLng(latitude/totalPoints, longitude/totalPoints);
+        return center;
     }
 
     @Override
@@ -702,17 +711,6 @@ public class MainActivity extends Activity implements
         }
     }
 
-    public void onClickSwitchDirection(View view) {
-        if (mMap != null) {
-            boolean right = ((Switch) view).isChecked();
-            if (right) {
-                mPathDir = 1;
-            } else {
-                mPathDir = -1;
-            }
-        }
-    }
-
     public void onCLickSwitchLock(View view) {
         mIsLocked = !mIsLocked;
     }
@@ -748,7 +746,7 @@ public class MainActivity extends Activity implements
                 LatLng pointB = null;
                 double minDist = 1000;
                 for (int i=0; i < points.size() - 1; i++){
-                    double dist = Math.abs(this.getTrackDist(points.get(i), points.get(i + 1), clickLocation));
+                    double dist = Math.abs(MainActivity.getTrackDist(points.get(i), points.get(i + 1), clickLocation));
                     List<LatLng> line = new ArrayList<LatLng>();
                     line.add(points.get(i));
                     line.add(points.get(i+1));
@@ -758,7 +756,7 @@ public class MainActivity extends Activity implements
                         pointB = points.get(i+1);
                     }
                 }
-                double dist = Math.abs(this.getTrackDist(points.get(0), points.get(points.size() - 1), clickLocation));
+                double dist = Math.abs(MainActivity.getTrackDist(points.get(0), points.get(points.size() - 1), clickLocation));
                 List<LatLng> line = new ArrayList<LatLng>();
                 line.add(points.get(0));
                 line.add(points.get(points.size()-1));
@@ -770,6 +768,25 @@ public class MainActivity extends Activity implements
                 if (pointA != null && pointB != null) {
                     onClickButtonA(findViewById(R.id.button_A), pointA);
                     onClickButtonB(findViewById(R.id.button_B), pointB);
+                    // check if closer to polygon
+                    double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
+                    if (heading > -90 && heading < 90) {
+                        heading += 90*mPathDir;
+                    } else {
+                        heading -= 90*mPathDir;
+                    }
+                    mInterpA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
+                    mInterpB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
+                    // check dist to center of polygon
+                    LatLng polygonCenter = MainActivity.getPolyCenter(points);
+                    Location center = new Location("");
+                    center.setLongitude(polygonCenter.longitude);
+                    center.setLatitude(polygonCenter.latitude);
+                    double centerToPoint = MainActivity.getTrackDist(pointA, pointB, center);
+                    double centerToNewPoint = MainActivity.getTrackDist(mInterpA, mInterpB, center);
+                    if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
+                        mPathDir = mPathDir * -1;
+                    }
                 }
             } else {
             }

@@ -108,16 +108,6 @@
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/switch_direction"
-                android:textOn="right"
-                android:textOff="left"
-                android:checked="true"
-                android:onClick="onClickSwitchDirection"
-                android:layout_below="@+id/button_gamma" />
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="BaseLine Lock"
                 android:id="@+id/switch_lock"
                 android:onClick="onCLickSwitchLock"
