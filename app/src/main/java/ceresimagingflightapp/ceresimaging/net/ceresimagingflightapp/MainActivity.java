@@ -102,6 +102,7 @@ public class MainActivity extends Activity implements
     private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
     private boolean mIsExpanded = false;
+    private boolean mIsLocked = false;
     private double mGamma = 0.9;
 
     private AlertDialog mGetLocationAlert;
@@ -506,7 +507,7 @@ public class MainActivity extends Activity implements
         this.onClickButtonA(view, null);
     }
     public void onClickButtonA(View view, LatLng point) {
-        if (mMap != null) {
+        if (mMap != null && !mIsLocked) {
             if (point != null) {
                 mLocationA = new Location("");
                 mLocationA.setLongitude(point.longitude);
@@ -528,7 +529,7 @@ public class MainActivity extends Activity implements
         this.onClickButtonB(view, null);
     }
     public void onClickButtonB(View view, LatLng point) {
-        if (mMap != null) {
+        if (mMap != null && !mIsLocked) {
             if (mLocationA != null){
                 mPassNumber = 0;
                 mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
@@ -687,6 +688,10 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void onCLickSwitchLock(View view) {
+        mIsLocked = !mIsLocked;
+    }
+
     @Override
     public boolean onMarkerClick(final Marker marker) {
         if (mFlightMarkers.contains(marker)){
@@ -738,40 +743,8 @@ public class MainActivity extends Activity implements
                     pointB = points.get(points.size()-1);
                 }
                 if (pointA != null && pointB != null) {
-                    PolylineOptions pathOptions = new PolylineOptions()
-                            .width(10)
-                            .color(Color.MAGENTA)
-                            .add(pointA)
-                            .add(pointB);
-                    final Polyline tempLine = mMap.addPolyline(pathOptions);
-
-                    // show confirm
-                    final LatLng finalPointA = pointA;
-                    final LatLng finalPointB = pointB;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage(R.string.polygon_edge_select_message);
-                    builder.setPositiveButton(R.string.yes, new OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            onClickButtonA(findViewById(R.id.button_A), finalPointA);
-                            onClickButtonB(findViewById(R.id.button_B), finalPointB);
-                            tempLine.remove();
-                        }
-                    });
-                    builder.setNegativeButton(R.string.no, new OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            tempLine.remove();
-                        }
-                    });
-                    builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            tempLine.remove();
-                        }
-                    });
-                    builder.show();
-
+                    onClickButtonA(findViewById(R.id.button_A), pointA);
+                    onClickButtonB(findViewById(R.id.button_B), pointB);
                 }
             } else {
             }
