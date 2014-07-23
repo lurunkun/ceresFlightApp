@@ -61,6 +61,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.DialogInterface.OnClickListener;
 
@@ -82,6 +83,7 @@ public class MainActivity extends Activity implements
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
     private Location mLocationPrev;
+    private double mCurrentSpeed;
     private Marker mCurrentMarker;
     private Location mLocationA;
     private Location mLocationB;
@@ -121,6 +123,10 @@ public class MainActivity extends Activity implements
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
     private LinearLayout mLayoutArrow;
+    private TextView mTextDistToField;
+    private TextView mTextBrngToField;
+    private TextView mTextTimeToField;
+    private TextView mTextFieldAltitude;
 
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
@@ -149,6 +155,7 @@ public class MainActivity extends Activity implements
     public static double toMeters(double distance) {
         return distance * 0.3048;
     }
+    public static double toMiles(double distance) { return distance / 1609.34; }
     public static LatLng getPolyCenter(List<LatLng> polygon) {
         double latitude = 0;
         double longitude = 0;
@@ -170,6 +177,10 @@ public class MainActivity extends Activity implements
         mTextTrackDist = (TextView) findViewById(R.id.text_track_dist);
         mTextCurrentLocation = (TextView) findViewById(R.id.current_location);
         mTextPassNumber = (TextView) findViewById(R.id.text_pass_number);
+        mTextDistToField = (TextView) findViewById(R.id.text_dist_to_field);
+        mTextBrngToField = (TextView) findViewById(R.id.text_brng_to_field);
+        mTextTimeToField = (TextView) findViewById(R.id.text_time_to_field);
+        mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
         mImageTrackDistDir = (ImageView) findViewById(R.id.image_trackDist_direction);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
@@ -844,70 +855,89 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        TextView textBearing = (TextView) findViewById(R.id.text_bearing);
-        textBearing.setText(Float.toString(location.getBearing()));
-        mLocationCurrent = location;
-        if (mLocationCurrent != null) {
-            mGetLocationAlert.dismiss();
-            if (mLocationPrev == null) {
-                mLocationPrev = location;
-            }
-            // filter
-            mLocationCurrent = filterPosition(location, mLocationPrev, mGamma);
+        if (location.getSpeed() < 89.408) {
+            TextView textBearing = (TextView) findViewById(R.id.text_bearing);
+            textBearing.setText(Float.toString(location.getBearing()));
+            mLocationCurrent = location;
+            mCurrentSpeed = location.getSpeed();
+            if (mLocationCurrent != null) {
+                mGetLocationAlert.dismiss();
+                if (mLocationPrev == null) {
+                    mLocationPrev = location;
+                }
+                // filter
+                mLocationCurrent = filterPosition(location, mLocationPrev, mGamma);
 
-            double lat = mLocationCurrent.getLatitude();
-            double lng = mLocationCurrent.getLongitude();
-            LatLng current = new LatLng(lat, lng);
-            LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
-            location.setBearing((float) SphericalUtil.computeHeading(prev, current));
-            mLocationPrev = mLocationCurrent;
-            if (mCurrentMarker == null) {
-                Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
-                Bitmap arrowBm = ((BitmapDrawable) arrow).getBitmap();
-                arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/3, arrowBm.getHeight()/3, true);
-                mCurrentMarker = mMap.addMarker(new MarkerOptions()
-                        .position(current)
-                        .flat(true)
-                        .anchor((float) 0.5, (float) 0.8)
-                        .rotation(mLocationCurrent.getBearing())
-                        .icon(BitmapDescriptorFactory.fromBitmap(arrowBm)));
-            } else {
-                mCurrentMarker.setPosition(current);
-                mCurrentMarker.setRotation(mLocationCurrent.getBearing());
+                double lat = mLocationCurrent.getLatitude();
+                double lng = mLocationCurrent.getLongitude();
+                LatLng current = new LatLng(lat, lng);
+                LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
+                location.setBearing((float) SphericalUtil.computeHeading(prev, current));
+                mLocationPrev = mLocationCurrent;
+                if (mCurrentMarker == null) {
+                    Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
+                    Bitmap arrowBm = ((BitmapDrawable) arrow).getBitmap();
+                    arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/3, arrowBm.getHeight()/3, true);
+                    mCurrentMarker = mMap.addMarker(new MarkerOptions()
+                            .position(current)
+                            .flat(true)
+                            .anchor((float) 0.5, (float) 0.8)
+                            .rotation(mLocationCurrent.getBearing())
+                            .icon(BitmapDescriptorFactory.fromBitmap(arrowBm)));
+                } else {
+                    mCurrentMarker.setPosition(current);
+                    mCurrentMarker.setRotation(mLocationCurrent.getBearing());
+                }
             }
-        }
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-        mCurrentLatLng = new LatLng(lat, lng);
-        if (IS_DEV) {
-            mTextCurrentLocation.setText((double)Math.round(lat*1000)/1000 + ", " + (double)Math.round(lng*1000)/1000);
-        }
-        if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
-            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
-            displayTrackDist(trackDist);
-        }
-        if (mIsFollowing) {
-            CameraPosition cameraPosition;
-            float zoom = mMap.getCameraPosition().zoom;
-            if (mIsRotating) {
-                cameraPosition = new CameraPosition.Builder()
-                        .target(mCurrentLatLng)
-                        .zoom(zoom)
-                        .bearing(location.getBearing())
-                        .build();
-            } else {
-                cameraPosition = new CameraPosition.Builder()
-                        .target(mCurrentLatLng)
-                        .zoom(zoom)
-                        .build();
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            mCurrentLatLng = new LatLng(lat, lng);
+            if (IS_DEV) {
+                mTextCurrentLocation.setText((double)Math.round(lat*1000)/1000 + ", " + (double)Math.round(lng*1000)/1000);
             }
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
-        if (mFlightLine != null) {
-            List<LatLng> points = new ArrayList<LatLng>();
-            points.add(mCurrentLatLng);
-            points.add(mDestinationMarker.getPosition());
-            mFlightLine.setPoints(points);
+            if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
+                double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+                displayTrackDist(trackDist);
+            }
+            if (mIsFollowing) {
+                CameraPosition cameraPosition;
+                float zoom = mMap.getCameraPosition().zoom;
+                if (mIsRotating) {
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(mCurrentLatLng)
+                            .zoom(zoom)
+                            .bearing(location.getBearing())
+                            .build();
+                } else {
+                    cameraPosition = new CameraPosition.Builder()
+                            .target(mCurrentLatLng)
+                            .zoom(zoom)
+                            .build();
+                }
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
+            if (mFlightLine != null) {
+                List<LatLng> points = new ArrayList<LatLng>();
+                points.add(mCurrentLatLng);
+                points.add(mDestinationMarker.getPosition());
+                mFlightLine.setPoints(points);
+
+                // display travel info
+                double dist = SphericalUtil.computeDistanceBetween(mCurrentLatLng, mDestinationMarker.getPosition());
+                double brng = SphericalUtil.computeHeading(mCurrentLatLng, mDestinationMarker.getPosition());
+                double time = dist / mCurrentSpeed;
+                long day = (int) TimeUnit.SECONDS.toDays((long) time);
+                long hours = TimeUnit.SECONDS.toHours((long) time) - (day * 24);
+                long minutes = TimeUnit.SECONDS.toMinutes((long) time) - (TimeUnit.SECONDS.toHours((long) time)* 60);
+                long second = TimeUnit.SECONDS.toSeconds((long) time) - (TimeUnit.SECONDS.toMinutes((long) time) *60);
+                if (hours > 100) { hours = 0; minutes = 0; }
+                String altitude = mDestinationMarker.getSnippet();
+                dist = MainActivity.toMiles(dist);
+                mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "m");
+                mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
+                mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
+                mTextFieldAltitude.setText(altitude.substring(5) + " asl");
+            }
         }
     }
 

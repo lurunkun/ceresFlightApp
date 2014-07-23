@@ -56,6 +56,95 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="200dp"
+                android:layout_height="80dp"
+                android:background="#ff003167">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="dist to field: "
+                        android:id="@+id/label_dist_to_field"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_dist_to_field"
+                        android:password="false"
+                        android:textColor="#fffdff86" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="brng to field: "
+                        android:id="@+id/label_brng_to_field"
+                        android:singleLine="false"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_brng_to_field"
+                        android:textColor="#fffdff86" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="time to field: "
+                        android:id="@+id/label_time_to_field"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_time_to_field"
+                        android:textColor="#fffdff86" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="85dp"
+                        android:layout_height="wrap_content"
+                        android:text="field altitude: "
+                        android:id="@+id/label_field_altitude"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_field_altitude"
+                        android:textColor="#fffdff86" />
+
+                </LinearLayout>
+            </LinearLayout>
+
             <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
@@ -115,6 +204,7 @@
                 android:layout_below="@+id/button_select_flight"
                 android:layout_alignRight="@+id/button_select_flight"
                 android:textColor="#000" />
+
         </RelativeLayout>
 
     </LinearLayout>
