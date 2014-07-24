@@ -200,7 +200,6 @@
                 android:layout_height="wrap_content"
                 android:text="BaseLine Lock"
                 android:id="@+id/switch_lock"
-                android:onClick="onCLickSwitchLock"
                 android:layout_below="@+id/button_select_flight"
                 android:layout_alignRight="@+id/button_select_flight"
                 android:textColor="#000" />

@@ -21,11 +21,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -127,6 +129,7 @@ public class MainActivity extends Activity implements
     private TextView mTextBrngToField;
     private TextView mTextTimeToField;
     private TextView mTextFieldAltitude;
+    private Switch mSwitchLock;
 
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
@@ -202,10 +205,16 @@ public class MainActivity extends Activity implements
                 }
             }
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
             public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
+        mSwitchLock = (Switch) findViewById(R.id.switch_lock);
+        mSwitchLock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mIsLocked = b;
             }
         });
 
@@ -756,10 +765,6 @@ public class MainActivity extends Activity implements
         }
     }
 
-    public void onCLickSwitchLock(View view) {
-        mIsLocked = ((ToggleButton) view).isChecked();
-    }
-
     @Override
     public boolean onMarkerClick(final Marker marker) {
         if (mFlightMarkers.contains(marker)){
@@ -814,23 +819,25 @@ public class MainActivity extends Activity implements
                     onClickButtonA(findViewById(R.id.button_A), pointA);
                     onClickButtonB(findViewById(R.id.button_B), pointB);
                     // check if closer to polygon
-                    double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
-                    if (heading > -90 && heading < 90) {
-                        heading += 90*mPathDir;
-                    } else {
-                        heading -= 90*mPathDir;
-                    }
-                    LatLng newPointA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
-                    LatLng newPointB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
-                    // check dist to center of polygon
-                    LatLng polygonCenter = MainActivity.getPolyCenter(points);
-                    Location center = new Location("");
-                    center.setLongitude(polygonCenter.longitude);
-                    center.setLatitude(polygonCenter.latitude);
-                    double centerToPoint = MainActivity.getTrackDist(pointA, pointB, center);
-                    double centerToNewPoint = MainActivity.getTrackDist(newPointA, newPointB, center);
-                    if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
-                        mPathDir = mPathDir * -1;
+                    if (mInterpA != null && mInterpB != null) {
+                        double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
+                        if (heading > -90 && heading < 90) {
+                            heading += 90*mPathDir;
+                        } else {
+                            heading -= 90*mPathDir;
+                        }
+                        LatLng newPointA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
+                        LatLng newPointB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
+                        // check dist to center of polygon
+                        LatLng polygonCenter = MainActivity.getPolyCenter(points);
+                        Location center = new Location("");
+                        center.setLongitude(polygonCenter.longitude);
+                        center.setLatitude(polygonCenter.latitude);
+                        double centerToPoint = MainActivity.getTrackDist(pointA, pointB, center);
+                        double centerToNewPoint = MainActivity.getTrackDist(newPointA, newPointB, center);
+                        if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
+                            mPathDir = mPathDir * -1;
+                        }
                     }
                 }
             } else {
