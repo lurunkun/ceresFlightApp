@@ -933,10 +933,10 @@ public class MainActivity extends Activity implements
                 if (hours > 100) { hours = 0; minutes = 0; }
                 String altitude = mDestinationMarker.getSnippet();
                 dist = MainActivity.toMiles(dist);
-                mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "m");
+                mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "miles");
                 mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
-                mTextFieldAltitude.setText(altitude.substring(5) + " asl");
+                mTextFieldAltitude.setText(altitude.substring(5) + "ft ASL");
             }
         }
     }
