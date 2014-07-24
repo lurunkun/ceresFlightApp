@@ -757,7 +757,7 @@ public class MainActivity extends Activity implements
     }
 
     public void onCLickSwitchLock(View view) {
-        mIsLocked = !mIsLocked;
+        mIsLocked = ((ToggleButton) view).isChecked();
     }
 
     @Override
