@@ -221,6 +221,8 @@ public class MainActivity extends Activity implements
         if (checkPlayServices()) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+            mMap.getUiSettings().setRotateGesturesEnabled(false);
+            mMap.getUiSettings().setTiltGesturesEnabled(false);
 //            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
             mMap.setOnMapClickListener(this);
