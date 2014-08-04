@@ -14,7 +14,7 @@
         <Button
             android:id="@+id/button_prev"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:text="@string/button_prev"
             android:layout_weight="2"
             android:onClick="onClickButtonPrev" />
@@ -33,7 +33,7 @@
         <Button
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:text="@string/button_next"
             android:layout_weight="2"
             android:onClick="onClickButtonNext"
@@ -157,15 +157,6 @@
                 android:layout_alignParentLeft="true"
                 android:visibility="gone" />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/button_select_flight"
-                android:id="@+id/button_select_flight"
-                android:clickable="true"
-                android:onClick="onClickButtonSelectFlight"
-                android:layout_alignParentRight="true" />
-
             <ImageView
                 android:layout_width="50sp"
                 android:layout_height="50sp"
@@ -200,9 +191,11 @@
                 android:layout_height="wrap_content"
                 android:text="BaseLine Lock"
                 android:id="@+id/switch_lock"
-                android:layout_below="@+id/button_select_flight"
-                android:layout_alignRight="@+id/button_select_flight"
-                android:textColor="#000" />
+                android:textColor="#000"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="false"
+                android:layout_alignBottom="@+id/text_track_dist"
+                android:layout_marginBottom="20dp" />
 
         </RelativeLayout>
 
@@ -298,6 +291,17 @@
             android:onClick="onClickButtonToggleSlider"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="60dp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_select_flight"
+            android:id="@+id/button_select_flight"
+            android:clickable="true"
+            android:onClick="onClickButtonSelectFlight"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="120dp" />
 
         <FrameLayout
             android:layout_width="wrap_content"

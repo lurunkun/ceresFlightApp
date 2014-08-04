@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -108,6 +109,8 @@ public class MainActivity extends Activity implements
     private boolean mIsExpanded = false;
     private boolean mIsLocked = false;
     private double mGamma = 0.98;
+    private long mPrevBtnClickTime = SystemClock.elapsedRealtime();
+    private long mNextBtnClickTime = SystemClock.elapsedRealtime();
 
     private AlertDialog mGetLocationAlert;
     private AlertDialog mRetrievingJsonAlert;
@@ -672,6 +675,10 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonPrev(View view) {
+        if (SystemClock.elapsedRealtime() - mPrevBtnClickTime < 2000) {
+            return;
+        }
+        mPrevBtnClickTime = SystemClock.elapsedRealtime();
         if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
             if (heading > -90 && heading < 90) {
@@ -696,6 +703,10 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickButtonNext(View view) {
+        if (SystemClock.elapsedRealtime() - mNextBtnClickTime < 2000) {
+            return;
+        }
+        mNextBtnClickTime = SystemClock.elapsedRealtime();
         if (mMap != null && mInterpA != null && mInterpB != null) {
             double heading = SphericalUtil.computeHeading(mInterpA, mInterpB);
             if (heading > -90 && heading < 90) {
