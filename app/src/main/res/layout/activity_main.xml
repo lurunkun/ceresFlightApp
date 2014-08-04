@@ -58,9 +58,11 @@
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="200dp"
-                android:layout_height="80dp"
-                android:background="#ff003167">
+                android:layout_width="230dp"
+                android:layout_height="wrap_content"
+                android:background="#ff003167"
+                android:id="@+id/information_box"
+                android:focusable="false">
 
                 <LinearLayout
                     android:orientation="horizontal"

@@ -61,6 +61,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,7 @@ public class MainActivity extends Activity implements
     private static final int UPDATE_INTERVAL = 100;
     private static final int FASTEST_INTERVAL = 100;
     private static final boolean IS_DEV = false;
+    private static final int mREAD_TIMEOUT = 10000;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
@@ -128,6 +130,7 @@ public class MainActivity extends Activity implements
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
     private LinearLayout mLayoutArrow;
+    private LinearLayout mInformationBox;
     private TextView mTextDistToField;
     private TextView mTextBrngToField;
     private TextView mTextTimeToField;
@@ -192,6 +195,7 @@ public class MainActivity extends Activity implements
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
         ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
         mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
+        mInformationBox = (LinearLayout) findViewById(R.id.information_box);
         mDrawableLeft.setColorFilter(filter);
         mDrawableRight.setColorFilter(filter);
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
@@ -375,13 +379,21 @@ public class MainActivity extends Activity implements
             URL url = new URL(SERVICE_URL + flight + ".json");
             conn = (HttpURLConnection) url.openConnection();
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
-
+            conn.setReadTimeout(mREAD_TIMEOUT);
             // Read the JSON data into the StringBuilder
             int read;
             char[] buff = new char[10000];
             while ((read = in.read(buff)) != -1) {
                 json.append(buff, 0, read);
             }
+        } catch (SocketTimeoutException e) {
+            Log.e(TAG, "Error timed out", e);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "Could not connect", Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (IOException e) {
             Log.e(TAG, "Error connecting to service", e);
             throw new IOException("Error connecting to service", e);
@@ -391,8 +403,7 @@ public class MainActivity extends Activity implements
             }
         }
 
-        // Create markers for the city data.
-        // Must run this on the UI thread since it's a UI operation.
+        // create markers and polygons
         runOnUiThread(new Runnable() {
             public void run() {
                 try {
@@ -556,6 +567,7 @@ public class MainActivity extends Activity implements
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Select Flight Plan");
             final Toast toast = Toast.makeText(this, "flight plan loaded", Toast.LENGTH_SHORT);
+            final Toast failed_toast = Toast.makeText(this, "connection failed", Toast.LENGTH_SHORT);
             final ListView flightList = new ListView(this);
             final String[] flightArray = new String[] { "flight1", "flight2" };
             ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, flightArray);
@@ -575,12 +587,13 @@ public class MainActivity extends Activity implements
                                     public void run() {
                                         try {
                                             retrieveAndAddFlightPlan(flight);
-                                            mRetrievingJsonAlert.dismiss();
-                                            mDialogFlightSelect.dismiss();
                                             toast.show();
                                         } catch (IOException e) {
                                             Log.e(TAG, "Cannot retrieve data", e);
-                                            return;
+                                            failed_toast.show();
+                                        } finally {
+                                            mRetrievingJsonAlert.dismiss();
+                                            mDialogFlightSelect.dismiss();
                                         }
                                     }
                                 }).start();
@@ -636,8 +649,8 @@ public class MainActivity extends Activity implements
                 view.setBackgroundColor(Color.RED);
                 LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
                 LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
-                mInterpA = SphericalUtil.computeOffset(pointB, 1500, SphericalUtil.computeHeading(pointA, pointB));
-                mInterpB = SphericalUtil.computeOffset(pointA, 1500, SphericalUtil.computeHeading(pointB, pointA));
+                mInterpA = SphericalUtil.computeOffset(pointB, 4000, SphericalUtil.computeHeading(pointA, pointB));
+                mInterpB = SphericalUtil.computeOffset(pointA, 4000, SphericalUtil.computeHeading(pointB, pointA));
 
                 if (mMarkerA != null && mMarkerB != null) {
                     mMarkerA.setPosition(mInterpA);
@@ -768,12 +781,20 @@ public class MainActivity extends Activity implements
             imageParams.height = imageHeight * 2;
             mImageTrackDistDir.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
+            mTextDistToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+            mTextTimeToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+            mTextBrngToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+            mTextFieldAltitude.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
             mIsExpanded = true;
         } else {
             imageParams.width = imageHeight / 2;
             imageParams.height = imageHeight / 2;
             mImageTrackDistDir.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
+            mTextDistToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            mTextTimeToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            mTextBrngToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            mTextFieldAltitude.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             mIsExpanded = false;
         }
     }
@@ -960,6 +981,4 @@ public class MainActivity extends Activity implements
             }
         }
     }
-
 }
-
