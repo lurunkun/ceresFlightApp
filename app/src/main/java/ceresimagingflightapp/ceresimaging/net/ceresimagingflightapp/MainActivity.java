@@ -81,6 +81,7 @@ public class MainActivity extends Activity implements
     private static final int FASTEST_INTERVAL = 100;
     private static final boolean IS_DEV = false;
     private static final int mREAD_TIMEOUT = 10000;
+    private static final int LINE_INDICATOR_MAX_LENGTH = 500;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
@@ -136,6 +137,8 @@ public class MainActivity extends Activity implements
     private TextView mTextTimeToField;
     private TextView mTextFieldAltitude;
     private Switch mSwitchLock;
+    private View mDistLineIndicatorLeft;
+    private View mDistLineIndicatorRight;
 
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
@@ -200,6 +203,8 @@ public class MainActivity extends Activity implements
         mDrawableRight.setColorFilter(filter);
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
+        mDistLineIndicatorLeft = findViewById(R.id.dist_indicator_line_left);
+        mDistLineIndicatorRight = findViewById(R.id.dist_indicator_line_right);
         mSeekBarSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         mSeekBarSlider.setMax(20);
         mSeekBarSlider.setProgress(14);
@@ -357,6 +362,45 @@ public class MainActivity extends Activity implements
             mImageTrackDistDir.setImageDrawable(mDrawableRight);
             mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
         }
+    }
+
+    public void adjustLineIndicator(double trackDist) {
+        int dist =  (int) Math.round(MainActivity.toFeet(trackDist));
+        String green = "#298200";
+        String red = "#f20000";
+        ViewGroup.LayoutParams layoutLeft =  mDistLineIndicatorLeft.getLayoutParams();
+        ViewGroup.LayoutParams layoutRight =  mDistLineIndicatorRight.getLayoutParams();
+        if (dist > 50 || dist < -50) {
+            mDistLineIndicatorLeft.setBackgroundColor(Color.parseColor(red));
+            mDistLineIndicatorRight.setBackgroundColor(Color.parseColor(red));
+        } else {
+            mDistLineIndicatorLeft.setBackgroundColor(Color.parseColor(green));
+            mDistLineIndicatorRight.setBackgroundColor(Color.parseColor(green));
+        }
+        if (dist > 20) {
+            layoutLeft.width = dist;
+            mDistLineIndicatorLeft.setVisibility(View.VISIBLE);
+            mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
+        } else if (dist < -20) {
+            layoutRight.width = Math.abs(dist);
+            mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
+            mDistLineIndicatorRight.setVisibility(View.VISIBLE);
+        } else if (dist < 20 && dist > 0){
+            layoutLeft.width = 20;
+            mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
+            mDistLineIndicatorLeft.setVisibility(View.VISIBLE);
+        } else if (dist > -20 && dist < 0) {
+            layoutRight.width = 20;
+            mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
+            mDistLineIndicatorRight.setVisibility(View.VISIBLE);
+        } else {
+            mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
+            mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
+        }
+        layoutLeft.width *= 2;
+        layoutRight.width *= 2;
+        mDistLineIndicatorLeft.setLayoutParams(layoutLeft);
+        mDistLineIndicatorRight.setLayoutParams(layoutRight);
     }
 
     private Location filterPosition(Location current, Location prev, final double GAMMA) {
@@ -939,6 +983,7 @@ public class MainActivity extends Activity implements
             if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
                 double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
                 displayTrackDist(trackDist);
+                adjustLineIndicator(trackDist);
             }
             if (mIsFollowing) {
                 CameraPosition cameraPosition;
