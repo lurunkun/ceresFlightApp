@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -17,6 +18,7 @@ import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -81,10 +83,11 @@ public class MainActivity extends Activity implements
     private static final int FASTEST_INTERVAL = 100;
     private static final boolean IS_DEV = false;
     private static final int mREAD_TIMEOUT = 10000;
-    private static final int LINE_INDICATOR_MAX_LENGTH = 500;
     private GoogleMap mMap;
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
+    private int mScreenWidth;
+    private int mScreenHeight;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -230,6 +233,8 @@ public class MainActivity extends Activity implements
             }
         });
 
+        getScreenSize();
+
         if (checkPlayServices()) {
             mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -354,6 +359,14 @@ public class MainActivity extends Activity implements
         mLocationClient = new LocationClient(this, this, this);
     }
 
+    private void getScreenSize() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        mScreenWidth = size.x;
+        mScreenHeight = size.y;
+    }
+
     public void displayTrackDist(double trackDist) {
         if (trackDist > 0) {
             mImageTrackDistDir.setImageDrawable(mDrawableLeft);
@@ -365,7 +378,10 @@ public class MainActivity extends Activity implements
     }
 
     public void adjustLineIndicator(double trackDist) {
-        int dist =  (int) Math.round(MainActivity.toFeet(trackDist));
+        getScreenSize();
+        int MAX_WIDTH = mScreenWidth/2 - 10;
+
+        double dist = MainActivity.toFeet(trackDist);
         String green = "#298200";
         String red = "#f20000";
         ViewGroup.LayoutParams layoutLeft =  mDistLineIndicatorLeft.getLayoutParams();
@@ -377,30 +393,21 @@ public class MainActivity extends Activity implements
             mDistLineIndicatorLeft.setBackgroundColor(Color.parseColor(green));
             mDistLineIndicatorRight.setBackgroundColor(Color.parseColor(green));
         }
-        if (dist > 20) {
-            layoutLeft.width = dist;
+        if (dist > 0) {
+            layoutLeft.width = (int) Math.round((dist/100) * MAX_WIDTH);
             mDistLineIndicatorLeft.setVisibility(View.VISIBLE);
             mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
-        } else if (dist < -20) {
-            layoutRight.width = Math.abs(dist);
-            mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
-            mDistLineIndicatorRight.setVisibility(View.VISIBLE);
-        } else if (dist < 20 && dist > 0){
-            layoutLeft.width = 20;
-            mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
-            mDistLineIndicatorLeft.setVisibility(View.VISIBLE);
-        } else if (dist > -20 && dist < 0) {
-            layoutRight.width = 20;
+        } else if (dist < 0) {
+            layoutRight.width = (int) Math.round((Math.abs(dist)/100) * MAX_WIDTH);
             mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
             mDistLineIndicatorRight.setVisibility(View.VISIBLE);
         } else {
             mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
             mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
         }
-        layoutLeft.width *= 2;
-        layoutRight.width *= 2;
         mDistLineIndicatorLeft.setLayoutParams(layoutLeft);
         mDistLineIndicatorRight.setLayoutParams(layoutRight);
+
     }
 
     private Location filterPosition(Location current, Location prev, final double GAMMA) {
