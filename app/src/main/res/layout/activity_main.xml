@@ -192,6 +192,15 @@
             <View
                 android:layout_width="20px"
                 android:id="@+id/center_empty"
+                android:layout_height="50px"
+                android:layout_centerHorizontal="true"
+                android:background="#0022FF"
+                android:layout_below="@+id/center_dist_indicator_static"
+                android:layout_marginBottom="10px" />
+
+            <View
+                android:layout_width="20px"
+                android:id="@+id/center_dist_indicator_static"
                 android:layout_height="25px"
                 android:layout_centerHorizontal="true"
                 android:background="#0022FF"
@@ -201,22 +210,42 @@
             <View
                 android:layout_width="20px"
                 android:layout_height="25px"
-                android:background="@android:color/holo_green_dark"
-                android:id="@+id/dist_indicator_line_left"
+                android:background="#000"
+                android:id="@+id/dist_left_indicator_static"
                 android:layout_gravity="center_horizontal"
                 android:layout_centerHorizontal="true"
-                android:layout_toStartOf="@id/center_empty"
+                android:layout_toStartOf="@id/center_dist_indicator_static"
                 android:layout_below="@+id/text_track_dist" />
 
             <View
                 android:layout_width="20px"
                 android:layout_height="25px"
+                android:background="#000"
+                android:id="@+id/dist_right_indicator_static"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/text_track_dist"
+                android:layout_toEndOf="@id/center_dist_indicator_static" />
+
+            <View
+                android:layout_width="20px"
+                android:layout_height="50px"
+                android:background="@android:color/holo_green_dark"
+                android:id="@+id/dist_indicator_line_left"
+                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
+                android:layout_toStartOf="@id/center_empty"
+                android:layout_below="@+id/center_dist_indicator_static" />
+
+            <View
+                android:layout_width="20px"
+                android:layout_height="50px"
                 android:background="@android:color/holo_green_dark"
                 android:id="@+id/dist_indicator_line_right"
                 android:layout_gravity="center_horizontal"
                 android:layout_centerHorizontal="true"
                 android:layout_toEndOf="@id/center_empty"
-                android:layout_below="@+id/text_track_dist" />
+                android:layout_below="@+id/center_dist_indicator_static" />
 
             <Switch
                 android:layout_width="wrap_content"

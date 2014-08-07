@@ -142,6 +142,8 @@ public class MainActivity extends Activity implements
     private Switch mSwitchLock;
     private View mDistLineIndicatorLeft;
     private View mDistLineIndicatorRight;
+    private View mDistLineIndicatorLeftStatic;
+    private View mDistLineIndicatorRightStatic;
 
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
@@ -208,6 +210,8 @@ public class MainActivity extends Activity implements
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
         mDistLineIndicatorLeft = findViewById(R.id.dist_indicator_line_left);
         mDistLineIndicatorRight = findViewById(R.id.dist_indicator_line_right);
+        mDistLineIndicatorLeftStatic = findViewById(R.id.dist_left_indicator_static);
+        mDistLineIndicatorRightStatic = findViewById(R.id.dist_right_indicator_static);
         mSeekBarSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         mSeekBarSlider.setMax(20);
         mSeekBarSlider.setProgress(14);
@@ -245,7 +249,7 @@ public class MainActivity extends Activity implements
             mMap.setOnMapClickListener(this);
             mGetLocationAlert = new AlertDialog.Builder(this)
                     .setTitle("retrieving location")
-                    .setMessage("Please Wait...")
+                    .setMessage(R.string.get_location_alert)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setCancelable(false)
                     .setNegativeButton(android.R.string.no, new OnClickListener() {
@@ -379,13 +383,15 @@ public class MainActivity extends Activity implements
 
     public void adjustLineIndicator(double trackDist) {
         getScreenSize();
-        int MAX_WIDTH = mScreenWidth/2 - 10;
+        double MAX_WIDTH = mScreenWidth/2 - 10;
 
         double dist = MainActivity.toFeet(trackDist);
         String green = "#298200";
         String red = "#f20000";
         ViewGroup.LayoutParams layoutLeft =  mDistLineIndicatorLeft.getLayoutParams();
         ViewGroup.LayoutParams layoutRight =  mDistLineIndicatorRight.getLayoutParams();
+        ViewGroup.LayoutParams layoutLeftStatic =  mDistLineIndicatorLeftStatic.getLayoutParams();
+        ViewGroup.LayoutParams layoutRightStatic =  mDistLineIndicatorRightStatic.getLayoutParams();
         if (dist > 50 || dist < -50) {
             mDistLineIndicatorLeft.setBackgroundColor(Color.parseColor(red));
             mDistLineIndicatorRight.setBackgroundColor(Color.parseColor(red));
@@ -405,9 +411,12 @@ public class MainActivity extends Activity implements
             mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
             mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
         }
+        layoutLeftStatic.width = (int) Math.round(MAX_WIDTH/2);
+        layoutRightStatic.width = (int) Math.round(MAX_WIDTH/2);
         mDistLineIndicatorLeft.setLayoutParams(layoutLeft);
         mDistLineIndicatorRight.setLayoutParams(layoutRight);
-
+        mDistLineIndicatorLeftStatic.setLayoutParams(layoutLeftStatic);
+        mDistLineIndicatorRightStatic.setLayoutParams(layoutRightStatic);
     }
 
     private Location filterPosition(Location current, Location prev, final double GAMMA) {
