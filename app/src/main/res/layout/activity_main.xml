@@ -348,6 +348,7 @@
             map:mapType="hybrid" />
 
         <ToggleButton
+            android:background="#cccccc"
             android:id="@+id/toggle_current_location"
             android:layout_width="80dp"
             android:layout_height="80dp"
@@ -372,6 +373,7 @@
             android:visibility="gone" />
 
         <ToggleButton
+            android:background="#ff0000"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:text="New ToggleButton"
@@ -385,6 +387,7 @@
             android:textSize="15sp" />
 
         <ToggleButton
+            android:background="#ff0000"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:text="New ToggleButton"

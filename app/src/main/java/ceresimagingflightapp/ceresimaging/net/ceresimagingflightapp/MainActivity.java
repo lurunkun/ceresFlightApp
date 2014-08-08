@@ -192,6 +192,25 @@ public class MainActivity extends Activity implements
         LatLng center = new LatLng(latitude/totalPoints, longitude/totalPoints);
         return center;
     }
+    public static Marker getPolygonMarker(Polygon polygon, List<Marker> markers) {
+        List<LatLng> points = polygon.getPoints();
+        LatLng center = getPolyCenter(points);
+        double shortestDist = 100000;
+        Marker closestMarker = null;
+        for (Marker marker : markers) {
+            if (closestMarker == null) {
+                shortestDist = Math.abs(SphericalUtil.computeDistanceBetween(marker.getPosition(), center));
+                closestMarker = marker;
+            } else {
+                double dist = Math.abs(SphericalUtil.computeDistanceBetween(marker.getPosition(), center));
+                if (dist < shortestDist) {
+                    shortestDist = dist;
+                    closestMarker = marker;
+                }
+            }
+        }
+        return closestMarker;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -561,6 +580,7 @@ public class MainActivity extends Activity implements
         if (mMap != null) {
             mIsFollowing = ((ToggleButton) view).isChecked();
             if (mIsFollowing) {
+                view.setBackgroundColor(Color.RED);
                 float zoom = mMap.getCameraPosition().zoom;
                 CameraPosition cameraPosition;
                 if (mIsRotating) {
@@ -575,7 +595,7 @@ public class MainActivity extends Activity implements
                 mMap.moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
             } else {
-
+                view.setBackgroundColor(Color.LTGRAY);
             }
         }
     }
@@ -585,6 +605,7 @@ public class MainActivity extends Activity implements
             mIsRotating = ((ToggleButton) view).isChecked();
             CameraPosition cameraPosition = null;
             if (mIsRotating) {
+                view.setBackgroundColor(Color.RED);
                 if (mIsFollowing) {
                     float zoom = mMap.getCameraPosition().zoom;
                     cameraPosition = new CameraPosition.Builder()
@@ -593,6 +614,7 @@ public class MainActivity extends Activity implements
                     mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
             } else {
+                view.setBackgroundColor(Color.LTGRAY);
                 float zoom = mMap.getCameraPosition().zoom;
                 cameraPosition = new CameraPosition.Builder()
                         .target(mCurrentLatLng)
@@ -609,11 +631,21 @@ public class MainActivity extends Activity implements
             if (mFlightLine != null) {
                 mFlightLine.setVisible(mIsFlightLineVis);
             }
+            if (mIsFlightLineVis) {
+                view.setBackgroundColor(Color.RED);
+            } else {
+                view.setBackgroundColor(Color.LTGRAY);
+            }
         }
     }
 
     public void onToggleMarkers(View view) {
         boolean isChecked = ((ToggleButton) view).isChecked();
+        if (isChecked) {
+            view.setBackgroundColor(Color.RED);
+        } else {
+            view.setBackgroundColor(Color.LTGRAY);
+        }
         if (mMap != null && mFlightMarkers != null) {
             for (Marker marker : mFlightMarkers) {
                 marker.setVisible(isChecked);
@@ -953,7 +985,16 @@ public class MainActivity extends Activity implements
             mDestinationMarker = marker;
             mCurrentFieldPolygon = null;
             mToggleFlightLine.setChecked(true);
+            mToggleFlightLine.setBackgroundColor(Color.RED);
             mIsFlightLineVis = true;
+
+            // adjust seek bar
+            String[] description = marker.getSnippet().split(", ");
+            double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
+            mShiftDist = (int) Math.round(MainActivity.toMeters(distanceBetweenPass));
+            int dist = (int) Math.round((distanceBetweenPass/1000)*20);
+            mSeekBarSlider.setProgress(dist);
+            mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
         }
         return false;
     }
@@ -1005,6 +1046,7 @@ public class MainActivity extends Activity implements
                         LatLng newPointB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
                         // check dist to center of polygon
                         LatLng polygonCenter = MainActivity.getPolyCenter(points);
+
                         Location center = new Location("");
                         center.setLongitude(polygonCenter.longitude);
                         center.setLatitude(polygonCenter.latitude);
@@ -1013,6 +1055,15 @@ public class MainActivity extends Activity implements
                         if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
                             mPathDir = mPathDir * -1;
                         }
+
+                        // adjust seek bar
+                        Marker marker = MainActivity.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
+                        String[] description = marker.getSnippet().split(", ");
+                        double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
+                        mShiftDist = (int) Math.round(MainActivity.toMeters(distanceBetweenPass));
+                        int shiftDist = (int) Math.round((distanceBetweenPass/1000)*20);
+                        mSeekBarSlider.setProgress(shiftDist);
+                        mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
                     }
                 }
             } else {
