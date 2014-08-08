@@ -302,8 +302,6 @@ public class MainActivity extends Activity implements
     protected void onStart() {
         super.onStart();
         mLocationClient.connect();
-        // set mock mode
-        mLocationClient.setMockMode(true);
     }
 
     @Override
