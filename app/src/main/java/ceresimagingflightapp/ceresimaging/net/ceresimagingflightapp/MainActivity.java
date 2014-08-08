@@ -580,7 +580,7 @@ public class MainActivity extends Activity implements
         if (mMap != null) {
             mIsFollowing = ((ToggleButton) view).isChecked();
             if (mIsFollowing) {
-                view.setBackgroundColor(Color.RED);
+                view.setBackgroundColor(Color.BLUE);
                 float zoom = mMap.getCameraPosition().zoom;
                 CameraPosition cameraPosition;
                 if (mIsRotating) {
@@ -605,7 +605,7 @@ public class MainActivity extends Activity implements
             mIsRotating = ((ToggleButton) view).isChecked();
             CameraPosition cameraPosition = null;
             if (mIsRotating) {
-                view.setBackgroundColor(Color.RED);
+                view.setBackgroundColor(Color.BLUE);
                 if (mIsFollowing) {
                     float zoom = mMap.getCameraPosition().zoom;
                     cameraPosition = new CameraPosition.Builder()
@@ -632,7 +632,7 @@ public class MainActivity extends Activity implements
                 mFlightLine.setVisible(mIsFlightLineVis);
             }
             if (mIsFlightLineVis) {
-                view.setBackgroundColor(Color.RED);
+                view.setBackgroundColor(Color.BLUE);
             } else {
                 view.setBackgroundColor(Color.LTGRAY);
             }
@@ -642,7 +642,7 @@ public class MainActivity extends Activity implements
     public void onToggleMarkers(View view) {
         boolean isChecked = ((ToggleButton) view).isChecked();
         if (isChecked) {
-            view.setBackgroundColor(Color.RED);
+            view.setBackgroundColor(Color.BLUE);
         } else {
             view.setBackgroundColor(Color.LTGRAY);
         }
@@ -985,7 +985,7 @@ public class MainActivity extends Activity implements
             mDestinationMarker = marker;
             mCurrentFieldPolygon = null;
             mToggleFlightLine.setChecked(true);
-            mToggleFlightLine.setBackgroundColor(Color.RED);
+            mToggleFlightLine.setBackgroundColor(Color.BLUE);
             mIsFlightLineVis = true;
 
             // adjust seek bar
