@@ -352,11 +352,12 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_gravity="right"
-            android:textOff="follow \n airplane"
-            android:textOn="follow \n airplane"
+            android:textOff="follow\nairplane"
+            android:textOn="follow\nairplane"
             android:onClick="onToggleCurrentLocation"
             android:theme="@style/Bubble.TextAppearance.Light"
-            android:checked="false" />
+            android:checked="false"
+            android:textSize="15sp" />
 
         <ToggleButton
             android:layout_width="wrap_content"
@@ -376,11 +377,12 @@
             android:text="New ToggleButton"
             android:id="@+id/toggle_markers"
             android:onClick="onToggleMarkers"
-            android:textOff="field \n markers"
-            android:textOn="field \n markers"
+            android:textOff="field\nmarkers"
+            android:textOn="field\nmarkers"
             android:layout_marginRight="100dp"
             android:layout_gravity="right"
-            android:checked="true" />
+            android:checked="true"
+            android:textSize="15sp" />
 
         <ToggleButton
             android:layout_width="80dp"
@@ -392,11 +394,12 @@
             android:textOff="line to\nfield"
             android:textOn="line to\nfield"
             android:checked="true"
-            android:onClick="onToggleFlightLine" />
+            android:onClick="onToggleFlightLine"
+            android:textSize="16sp" />
 
         <Button
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:text="@string/button_A"
             android:id="@+id/button_A"
             android:clickable="true"
@@ -404,14 +407,14 @@
             android:layout_gravity="bottom" />
 
         <Button
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:text="@string/button_B"
             android:id="@+id/button_B"
             android:clickable="true"
             android:onClick="onClickButtonB"
             android:layout_gravity="bottom"
-            android:layout_marginLeft="160px" />
+            android:layout_marginLeft="60dp" />
 
         <Button
             android:layout_width="80dp"
@@ -421,7 +424,8 @@
             android:clickable="true"
             android:onClick="onClickButtonToggleSlider"
             android:layout_gravity="bottom|right"
-            android:layout_marginRight="100dp" />
+            android:layout_marginRight="100dp"
+            android:textSize="24sp" />
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -482,7 +486,8 @@
             android:id="@+id/button_done_field"
             android:clickable="true"
             android:onClick="onClickDoneFieldButton"
-            android:layout_gravity="left|top" />
+            android:layout_gravity="left|top"
+            android:textSize="24sp" />
 
     </FrameLayout>
 

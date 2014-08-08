@@ -880,7 +880,7 @@ public class MainActivity extends Activity implements
         SeekBar distSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         ViewGroup.LayoutParams params = distSlider.getLayoutParams();
         if (params.height == 0){
-            params.height = 70;
+            params.height = 140;
         } else {
             params.height = 0;
         }
