@@ -410,6 +410,26 @@
                 android:layout_weight="1" />
         </FrameLayout>
 
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="+"
+            android:id="@+id/zoom_in"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="160dp"
+            android:textSize="50dp"
+            android:onClick="onClickZoomIn" />
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="-"
+            android:id="@+id/zoom_out"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="80dp"
+            android:textSize="60dp"
+            android:onClick="onClickZoomOut" />
+
     </FrameLayout>
 
     <SeekBar

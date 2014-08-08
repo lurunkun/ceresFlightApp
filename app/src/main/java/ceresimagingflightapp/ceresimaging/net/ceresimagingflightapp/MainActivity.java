@@ -244,14 +244,15 @@ public class MainActivity extends Activity implements
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.getUiSettings().setRotateGesturesEnabled(false);
             mMap.getUiSettings().setTiltGesturesEnabled(false);
+            mMap.getUiSettings().setZoomControlsEnabled(false);
 //            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
             mMap.setOnMapClickListener(this);
 
             CameraPosition cameraPosition;
                 cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(37.5767, -120.8386))
-                        .zoom(10)
+                        .target(new LatLng(36.398487, -119.621887))
+                        .zoom(7)
                         .build();
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -301,6 +302,8 @@ public class MainActivity extends Activity implements
     protected void onStart() {
         super.onStart();
         mLocationClient.connect();
+        // set mock mode
+        mLocationClient.setMockMode(true);
     }
 
     @Override
@@ -839,6 +842,20 @@ public class MainActivity extends Activity implements
                     public void onClick(DialogInterface dialogInterface, int i) {
                     }
                 }).show();
+    }
+
+    public void onClickZoomIn(View view) {
+//        CameraPosition cameraPosition;
+//        float zoom = mMap.getCameraPosition().zoom;
+//        cameraPosition = new CameraPosition.Builder()
+//                .target(mCurrentLatLng)
+//                .zoom(zoom)
+//                .build();
+        mMap.animateCamera(CameraUpdateFactory.zoomIn());
+    }
+
+    public void onClickZoomOut(View view) {
+        mMap.animateCamera(CameraUpdateFactory.zoomOut());
     }
 
     public void onClickLayoutArrow(View view) {
