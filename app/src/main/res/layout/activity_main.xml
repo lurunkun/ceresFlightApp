@@ -305,7 +305,7 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="230dp"
+            android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:background="#000"
             android:id="@+id/information_box"
@@ -329,7 +329,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/text_dist_to_field"
                     android:password="false"
-                    android:textColor="#fffdff86" />
+                    android:textColor="#fffdff86"
+                    android:textSize="28sp" />
 
             </LinearLayout>
 
@@ -350,7 +351,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/text_brng_to_field"
-                    android:textColor="#fffdff86" />
+                    android:textColor="#fffdff86"
+                    android:textSize="28sp" />
 
             </LinearLayout>
 
@@ -370,7 +372,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/text_time_to_field"
-                    android:textColor="#fffdff86" />
+                    android:textColor="#fffdff86"
+                    android:textSize="28sp" />
 
             </LinearLayout>
 
@@ -390,7 +393,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/text_field_altitude"
-                    android:textColor="#fffdff86" />
+                    android:textColor="#fffdff86"
+                    android:textSize="28sp" />
 
             </LinearLayout>
         </LinearLayout>

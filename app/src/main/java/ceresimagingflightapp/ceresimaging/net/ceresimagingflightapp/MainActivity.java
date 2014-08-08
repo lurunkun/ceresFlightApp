@@ -88,6 +88,7 @@ public class MainActivity extends Activity implements
     LocationClient mLocationClient;
     private int mScreenWidth;
     private int mScreenHeight;
+    private boolean mInitialFollowed = false;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -841,20 +842,12 @@ public class MainActivity extends Activity implements
             imageParams.height = imageHeight * 2;
             mImageTrackDistDir.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
-            mTextDistToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
-            mTextTimeToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
-            mTextBrngToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
-            mTextFieldAltitude.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
             mIsExpanded = true;
         } else {
             imageParams.width = imageHeight / 2;
             imageParams.height = imageHeight / 2;
             mImageTrackDistDir.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
-            mTextDistToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            mTextTimeToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            mTextBrngToField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            mTextFieldAltitude.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             mIsExpanded = false;
         }
     }
@@ -1001,7 +994,7 @@ public class MainActivity extends Activity implements
                 displayTrackDist(trackDist);
                 adjustLineIndicator(trackDist);
             }
-            if (mIsFollowing) {
+            if (mIsFollowing || !mInitialFollowed) {
                 CameraPosition cameraPosition;
                 float zoom = mMap.getCameraPosition().zoom;
                 if (mIsRotating) {
@@ -1017,6 +1010,7 @@ public class MainActivity extends Activity implements
                             .build();
                 }
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                mInitialFollowed = true;
             }
             if (mFlightLine != null) {
                 List<LatLng> points = new ArrayList<LatLng>();
