@@ -831,12 +831,16 @@ public class MainActivity extends Activity implements
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             for (Marker marker : mFlightMarkers) {
-                                List<LatLng> polygon = mCurrentFieldPolygon.getPoints();
-                                if (PolyUtil.containsLocation(marker.getPosition(), polygon, false)) {
-                                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
-                                    mNumberOfFieldsRemaining--;
+                                if (mCurrentFieldPolygon != null) {
+                                    List<LatLng> polygon = mCurrentFieldPolygon.getPoints();
+                                    if (PolyUtil.containsLocation(marker.getPosition(), polygon, false)) {
+                                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                    }
+                                } else {
+                                    mDestinationMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
                                 }
                             }
+                            mNumberOfFieldsRemaining--;
                         }
                     })
                     .setNegativeButton(android.R.string.no, new OnClickListener() {
@@ -847,7 +851,7 @@ public class MainActivity extends Activity implements
                     });
             mDialogDoneField = builder.create();
         }
-        if (mCurrentFieldPolygon != null) {
+        if (mCurrentFieldPolygon != null || mDestinationMarker != null) {
             mDialogDoneField.show();
         }
     }
@@ -927,6 +931,7 @@ public class MainActivity extends Activity implements
                     .add(marker.getPosition());
             mFlightLine = mMap.addPolyline(pathOptions);
             mDestinationMarker = marker;
+            mCurrentFieldPolygon = null;
             mToggleFlightLine.setChecked(true);
             mIsFlightLineVis = true;
         }
