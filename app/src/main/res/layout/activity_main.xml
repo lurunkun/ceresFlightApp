@@ -14,26 +14,42 @@
         <Button
             android:id="@+id/button_prev"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
+            android:layout_height="75dp"
             android:text="@string/button_prev"
             android:layout_weight="2"
             android:onClick="onClickButtonPrev" />
 
-        <TextView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="PASS #"
-            android:id="@+id/text_pass_number"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:gravity="center"
-            android:textSize="25dp"
-            android:freezesText="true"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PASS #"
+                android:id="@+id/text_pass_number"
+                android:layout_weight="1"
+                android:clickable="false"
+                android:textSize="25dp"
+                android:freezesText="true"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_select_flight"
+                android:id="@+id/button_select_flight"
+                android:clickable="true"
+                android:onClick="onClickButtonSelectFlight"
+                android:layout_alignParentRight="true" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/button_next"
             android:layout_width="wrap_content"
-            android:layout_height="70dp"
+            android:layout_height="75dp"
             android:text="@string/button_next"
             android:layout_weight="2"
             android:onClick="onClickButtonNext"
@@ -71,9 +87,9 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="80dp"
+                        android:layout_width="110dp"
                         android:layout_height="wrap_content"
-                        android:text="dist to field: "
+                        android:text="Distance to field: "
                         android:id="@+id/label_dist_to_field"
                         android:textColor="#fff" />
 
@@ -92,9 +108,9 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="80dp"
+                        android:layout_width="110dp"
                         android:layout_height="wrap_content"
-                        android:text="brng to field: "
+                        android:text="Bearing to field: "
                         android:id="@+id/label_brng_to_field"
                         android:singleLine="false"
                         android:textColor="#fff" />
@@ -113,9 +129,9 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="80dp"
+                        android:layout_width="110dp"
                         android:layout_height="wrap_content"
-                        android:text="time to field: "
+                        android:text="Time to field: "
                         android:id="@+id/label_time_to_field"
                         android:textColor="#fff" />
 
@@ -133,9 +149,9 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="85dp"
+                        android:layout_width="110dp"
                         android:layout_height="wrap_content"
-                        android:text="field altitude: "
+                        android:text="Field altitude: "
                         android:id="@+id/label_field_altitude"
                         android:textColor="#fff" />
 
@@ -331,7 +347,8 @@
             android:id="@+id/button_A"
             android:clickable="true"
             android:onClick="onClickButtonA"
-            android:layout_gravity="left|bottom" />
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="200dp" />
 
         <Button
             android:layout_width="80dp"
@@ -340,29 +357,18 @@
             android:id="@+id/button_B"
             android:clickable="true"
             android:onClick="onClickButtonB"
-            android:layout_gravity="bottom"
-            android:layout_marginLeft="90dp" />
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="100dp" />
 
         <Button
-            android:layout_width="65dp"
-            android:layout_height="65dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:text="700ft"
             android:id="@+id/button_toggle_slider"
             android:clickable="true"
             android:onClick="onClickButtonToggleSlider"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="60dp" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_select_flight"
-            android:id="@+id/button_select_flight"
-            android:clickable="true"
-            android:onClick="onClickButtonSelectFlight"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="120dp" />
 
         <FrameLayout
             android:layout_width="wrap_content"
