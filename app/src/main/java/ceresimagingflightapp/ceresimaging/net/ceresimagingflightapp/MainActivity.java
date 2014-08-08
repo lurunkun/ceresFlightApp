@@ -88,7 +88,6 @@ public class MainActivity extends Activity implements
     LocationClient mLocationClient;
     private int mScreenWidth;
     private int mScreenHeight;
-    private boolean mInitialFollowed = false;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -994,7 +993,7 @@ public class MainActivity extends Activity implements
                 displayTrackDist(trackDist);
                 adjustLineIndicator(trackDist);
             }
-            if (mIsFollowing || !mInitialFollowed) {
+            if (mIsFollowing) {
                 CameraPosition cameraPosition;
                 float zoom = mMap.getCameraPosition().zoom;
                 if (mIsRotating) {
@@ -1010,7 +1009,6 @@ public class MainActivity extends Activity implements
                             .build();
                 }
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                mInitialFollowed = true;
             }
             if (mFlightLine != null) {
                 List<LatLng> points = new ArrayList<LatLng>();
