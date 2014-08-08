@@ -101,6 +101,7 @@ public class MainActivity extends Activity implements
     private Marker mMarkerA;
     private Marker mMarkerB;
     private Polyline mPathLine;
+    private Polygon mCurrentFieldPolygon = null;
     private int mPathDir = 1;
     private int mShiftDist = (int) Math.round(MainActivity.toMeters(700));
     private int mPassNumber;
@@ -108,6 +109,7 @@ public class MainActivity extends Activity implements
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
+    private int mNumberOfFieldsRemaining;
 
     private boolean mIsFollowing = false;
     private boolean mIsRotating = false;
@@ -122,6 +124,7 @@ public class MainActivity extends Activity implements
     private AlertDialog mRetrievingJsonAlert;
     private Dialog mDialogFlightSelect;
     private Dialog mDialogFlightConfirm;
+    private Dialog mDialogDoneField;
     private boolean mFlightSelectConfirmed = false;
     private TextView mTextCurrentLocation;
     private TextView mTextTrackDist;
@@ -139,6 +142,7 @@ public class MainActivity extends Activity implements
     private TextView mTextBrngToField;
     private TextView mTextTimeToField;
     private TextView mTextFieldAltitude;
+    private TextView mTextFieldsRemaining;
     private Switch mSwitchLock;
     private View mDistLineIndicatorLeft;
     private View mDistLineIndicatorRight;
@@ -198,6 +202,7 @@ public class MainActivity extends Activity implements
         mTextBrngToField = (TextView) findViewById(R.id.text_brng_to_field);
         mTextTimeToField = (TextView) findViewById(R.id.text_time_to_field);
         mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
+        mTextFieldsRemaining = (TextView) findViewById(R.id.text_fields_remaining);
         mImageTrackDistDir = (ImageView) findViewById(R.id.image_trackDist_direction);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
@@ -526,6 +531,7 @@ public class MainActivity extends Activity implements
                 mFlightPolygons.add(polygon);
             }
         }
+        mNumberOfFieldsRemaining = mFlightMarkers.size();
         saveFlightPlan(json);
     }
 
@@ -812,6 +818,37 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void onClickDoneFieldButton(View view) {
+        if (mDialogDoneField == null) {
+            // confirm
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setMessage("Are you done?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            for (Marker marker : mFlightMarkers) {
+                                List<LatLng> polygon = mCurrentFieldPolygon.getPoints();
+                                if (PolyUtil.containsLocation(marker.getPosition(), polygon, false)) {
+                                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                    mNumberOfFieldsRemaining--;
+                                }
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mDialogDoneField.dismiss();
+                        }
+                    });
+            mDialogDoneField = builder.create();
+        }
+        if (mCurrentFieldPolygon != null) {
+            mDialogDoneField.show();
+        }
+    }
+
     public void onClickButtonToggleSlider(View view) {
         SeekBar distSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         ViewGroup.LayoutParams params = distSlider.getLayoutParams();
@@ -925,6 +962,7 @@ public class MainActivity extends Activity implements
                     pointB = points.get(points.size()-1);
                 }
                 if (pointA != null && pointB != null) {
+                    mCurrentFieldPolygon = polygon;
                     onClickButtonA(findViewById(R.id.button_A), pointA);
                     onClickButtonB(findViewById(R.id.button_B), pointB);
                     // check if closer to polygon
@@ -1055,6 +1093,7 @@ public class MainActivity extends Activity implements
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
                 mTextFieldAltitude.setText(altitude.substring(5) + "ft ASL");
             }
+            mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining));
         }
     }
 }
