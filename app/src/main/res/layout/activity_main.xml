@@ -70,99 +70,7 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="230dp"
-                android:layout_height="wrap_content"
-                android:background="#ff003167"
-                android:id="@+id/information_box"
-                android:focusable="false">
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="110dp"
-                        android:layout_height="wrap_content"
-                        android:text="Distance to field: "
-                        android:id="@+id/label_dist_to_field"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_dist_to_field"
-                        android:password="false"
-                        android:textColor="#fffdff86" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="110dp"
-                        android:layout_height="wrap_content"
-                        android:text="Bearing to field: "
-                        android:id="@+id/label_brng_to_field"
-                        android:singleLine="false"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_brng_to_field"
-                        android:textColor="#fffdff86" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="110dp"
-                        android:layout_height="wrap_content"
-                        android:text="Time to field: "
-                        android:id="@+id/label_time_to_field"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_time_to_field"
-                        android:textColor="#fffdff86" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="110dp"
-                        android:layout_height="wrap_content"
-                        android:text="Field altitude: "
-                        android:id="@+id/label_field_altitude"
-                        android:textColor="#fff" />
-
-                    <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/text_field_altitude"
-                        android:textColor="#fffdff86" />
-
-                </LinearLayout>
-            </LinearLayout>
+            android:layout_height="wrap_content">
 
             <Button
                 style="?android:attr/buttonStyleSmall"
@@ -184,8 +92,13 @@
                 android:contentDescription="direction"
                 android:layout_gravity="center"
                 android:scaleType="fitXY"
-                android:layout_centerHorizontal="true"
-                android:padding="0dp" />
+                android:padding="0dp"
+                android:layout_alignParentStart="false"
+                android:layout_alignParentEnd="false"
+                android:baselineAlignBottom="false"
+                android:layout_alignParentTop="false"
+                android:layout_alignParentLeft="false"
+                android:layout_centerHorizontal="true" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -200,10 +113,10 @@
                 android:gravity="center"
                 android:freezesText="true"
                 android:layout_gravity="center_horizontal"
-                android:layout_centerHorizontal="true"
                 android:layout_below="@+id/image_trackDist_direction"
                 android:layout_marginTop="-15dp"
-                android:singleLine="false" />
+                android:singleLine="false"
+                android:layout_centerHorizontal="true" />
 
             <View
                 android:layout_width="20px"
@@ -269,10 +182,10 @@
                 android:text="BaseLine Lock"
                 android:id="@+id/switch_lock"
                 android:textColor="#000"
-                android:layout_alignParentEnd="true"
+                android:layout_alignParentEnd="false"
                 android:layout_alignParentStart="false"
-                android:layout_marginBottom="20dp"
-                android:layout_alignBottom="@+id/text_track_dist" />
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="90px" />
 
         </RelativeLayout>
 
@@ -389,6 +302,98 @@
                 android:id="@+id/text_bearing"
                 android:layout_weight="1" />
         </FrameLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="230dp"
+            android:layout_height="wrap_content"
+            android:background="#000"
+            android:id="@+id/information_box"
+            android:focusable="false"
+            android:layout_gravity="bottom">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Distance to field: "
+                    android:id="@+id/label_dist_to_field"
+                    android:textColor="#fff" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_dist_to_field"
+                    android:password="false"
+                    android:textColor="#fffdff86" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Bearing to field: "
+                    android:id="@+id/label_brng_to_field"
+                    android:singleLine="false"
+                    android:textColor="#fff" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_brng_to_field"
+                    android:textColor="#fffdff86" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Time to field: "
+                    android:id="@+id/label_time_to_field"
+                    android:textColor="#fff" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_time_to_field"
+                    android:textColor="#fffdff86" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Field altitude: "
+                    android:id="@+id/label_field_altitude"
+                    android:textColor="#fff" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_field_altitude"
+                    android:textColor="#fffdff86" />
+
+            </LinearLayout>
+        </LinearLayout>
 
     </FrameLayout>
 
