@@ -79,8 +79,8 @@ public class MainActivity extends Activity implements
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final int UPDATE_INTERVAL = 100;
-    private static final int FASTEST_INTERVAL = 100;
+    private static final int UPDATE_INTERVAL = 50;
+    private static final int FASTEST_INTERVAL = 50;
     private static final boolean IS_DEV = false;
     private static final int mREAD_TIMEOUT = 10000;
     private GoogleMap mMap;
@@ -247,6 +247,14 @@ public class MainActivity extends Activity implements
 //            mMap.setMyLocationEnabled(true);
             mMap.setOnMarkerClickListener(this);
             mMap.setOnMapClickListener(this);
+
+            CameraPosition cameraPosition;
+                cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(37.5767, -120.8386))
+                        .zoom(10)
+                        .build();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
             mGetLocationAlert = new AlertDialog.Builder(this)
                     .setTitle("retrieving location")
                     .setMessage(R.string.get_location_alert)
