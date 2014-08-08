@@ -286,7 +286,7 @@
             android:textOn="follow airplane"
             android:onClick="onToggleCurrentLocation"
             android:theme="@style/Bubble.TextAppearance.Light"
-            android:checked="true" />
+            android:checked="false" />
 
         <ToggleButton
             android:layout_width="wrap_content"
