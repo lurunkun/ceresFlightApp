@@ -117,7 +117,7 @@
                 android:layout_marginTop="-15dp"
                 android:singleLine="false"
                 android:layout_centerHorizontal="true"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="15dp" />
 
             <View
                 android:layout_width="20px"
@@ -179,7 +179,7 @@
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="260dp"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:background="#000"
                 android:id="@+id/information_box2"
@@ -193,7 +193,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="110dp"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:text="Time to field: "
                         android:id="@+id/label_time_to_field"
@@ -214,7 +214,7 @@
                     android:layout_height="wrap_content">
 
                     <TextView
-                        android:layout_width="110dp"
+                        android:layout_width="160dp"
                         android:layout_height="wrap_content"
                         android:text="Field altitude: "
                         android:id="@+id/label_field_altitude"
@@ -227,6 +227,27 @@
                         android:textColor="#fffdff86"
                         android:textSize="28sp" />
 
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearLayout2">
+
+                    <TextView
+                        android:layout_width="160dp"
+                        android:layout_height="wrap_content"
+                        android:text="Distance between pass:"
+                        android:id="@+id/label_dist_between_pass"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/text_dist_between_pass"
+                        android:textColor="#fffdff86"
+                        android:textSize="28sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -400,7 +421,7 @@
             android:clickable="true"
             android:onClick="onClickButtonToggleSlider"
             android:layout_gravity="bottom|right"
-            android:layout_marginRight="60dp" />
+            android:layout_marginRight="100dp" />
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -428,7 +449,7 @@
             android:text="+"
             android:id="@+id/zoom_in"
             android:layout_gravity="bottom|right"
-            android:layout_marginBottom="160dp"
+            android:layout_marginBottom="80dp"
             android:textSize="50dp"
             android:onClick="onClickZoomIn" />
 
@@ -438,7 +459,6 @@
             android:text="-"
             android:id="@+id/zoom_out"
             android:layout_gravity="bottom|right"
-            android:layout_marginBottom="80dp"
             android:textSize="60dp"
             android:onClick="onClickZoomOut" />
 

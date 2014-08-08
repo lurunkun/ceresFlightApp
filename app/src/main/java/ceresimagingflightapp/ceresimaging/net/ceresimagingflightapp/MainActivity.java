@@ -143,6 +143,7 @@ public class MainActivity extends Activity implements
     private TextView mTextTimeToField;
     private TextView mTextFieldAltitude;
     private TextView mTextFieldsRemaining;
+    private TextView mTextDistBetweenPass;
     private Switch mSwitchLock;
     private View mDistLineIndicatorLeft;
     private View mDistLineIndicatorRight;
@@ -203,6 +204,7 @@ public class MainActivity extends Activity implements
         mTextTimeToField = (TextView) findViewById(R.id.text_time_to_field);
         mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
         mTextFieldsRemaining = (TextView) findViewById(R.id.text_fields_remaining);
+        mTextDistBetweenPass = (TextView) findViewById(R.id.text_dist_between_pass);
         mImageTrackDistDir = (ImageView) findViewById(R.id.image_trackDist_direction);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
@@ -508,15 +510,16 @@ public class MainActivity extends Activity implements
             JSONObject feature = features.getJSONObject(i);
             JSONObject geometry = feature.getJSONObject("geometry");
             String name = feature.getJSONObject("properties").getString("Name");
-            String altitude = feature.getJSONObject("properties").getString("Description");
-
             JSONArray coords = geometry.getJSONArray("coordinates");
             // if feature is a point
             if (geometry.getString("type").equals("Point")) {
+                String[] description = feature.getJSONObject("properties").getString("Description").split(", ");
+                String altitude = description[0];
+                String distanceBetweenPass = description[1];
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(coords.getDouble(1), coords.getDouble(0))));
                 marker.setTitle(name);
-                marker.setSnippet("alt: " + altitude);
+                marker.setSnippet("alt: " + altitude +", distance between pass: " + distanceBetweenPass);
                 mFlightMarkers.add(marker);
             // if feature is polygon
             } else if (geometry.getString("type").equals("Polygon")) {
@@ -1086,12 +1089,16 @@ public class MainActivity extends Activity implements
                 long minutes = TimeUnit.SECONDS.toMinutes((long) time) - (TimeUnit.SECONDS.toHours((long) time)* 60);
                 long second = TimeUnit.SECONDS.toSeconds((long) time) - (TimeUnit.SECONDS.toMinutes((long) time) *60);
                 if (hours > 100) { hours = 0; minutes = 0; }
-                String altitude = mDestinationMarker.getSnippet();
+                String[] description = mDestinationMarker.getSnippet().split(", ");
+                String altitude = description[0].substring(5);
+                String distanceBetweenPass = description[1].substring(23);
                 dist = MainActivity.toMiles(dist);
                 mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "miles");
                 mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
-                mTextFieldAltitude.setText(altitude.substring(5) + "ft ASL");
+                mTextFieldAltitude.setText(altitude + "ft ASL");
+                mTextDistBetweenPass.setText(distanceBetweenPass);
+
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining));
         }
