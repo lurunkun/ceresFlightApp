@@ -66,7 +66,9 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.DialogInterface.OnClickListener;
@@ -107,6 +109,7 @@ public class MainActivity extends Activity implements
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
+    private Map<Marker, Boolean> mMarkerDoneMap = new HashMap<Marker, Boolean>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
     private int mNumberOfFieldsRemaining;
@@ -519,8 +522,9 @@ public class MainActivity extends Activity implements
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(coords.getDouble(1), coords.getDouble(0))));
                 marker.setTitle(name);
-                marker.setSnippet("alt: " + altitude +", distance between pass: " + distanceBetweenPass);
+                marker.setSnippet("alt: " + altitude + ", distance between pass: " + distanceBetweenPass);
                 mFlightMarkers.add(marker);
+                mMarkerDoneMap.put(marker, false);
             // if feature is polygon
             } else if (geometry.getString("type").equals("Polygon")) {
                 coords = coords.getJSONArray(0);
@@ -835,12 +839,17 @@ public class MainActivity extends Activity implements
                                     List<LatLng> polygon = mCurrentFieldPolygon.getPoints();
                                     if (PolyUtil.containsLocation(marker.getPosition(), polygon, false)) {
                                         marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                        mMarkerDoneMap.put(marker, true);
+                                        mNumberOfFieldsRemaining--;
+                                        return;
                                     }
                                 } else {
                                     mDestinationMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                    mMarkerDoneMap.put(mDestinationMarker, true);
+                                    mNumberOfFieldsRemaining--;
+                                    return;
                                 }
                             }
-                            mNumberOfFieldsRemaining--;
                         }
                     })
                     .setNegativeButton(android.R.string.no, new OnClickListener() {
@@ -851,8 +860,19 @@ public class MainActivity extends Activity implements
                     });
             mDialogDoneField = builder.create();
         }
-        if (mCurrentFieldPolygon != null || mDestinationMarker != null) {
-            mDialogDoneField.show();
+        if (mCurrentFieldPolygon != null) {
+            for (Marker marker : mFlightMarkers) {
+                List<LatLng> polygon = mCurrentFieldPolygon.getPoints();
+                if (PolyUtil.containsLocation(marker.getPosition(), polygon, false)) {
+                    if (!mMarkerDoneMap.get(marker)) {
+                        mDialogDoneField.show();
+                    }
+                }
+            }
+        } else if (mDestinationMarker != null) {
+            if (!mMarkerDoneMap.get(mDestinationMarker)) {
+                mDialogDoneField.show();
+            }
         }
     }
 
@@ -1079,7 +1099,7 @@ public class MainActivity extends Activity implements
                 }
                 mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
-            if (mFlightLine != null) {
+            if (mFlightLine != null && mDestinationMarker != null) {
                 List<LatLng> points = new ArrayList<LatLng>();
                 points.add(mCurrentLatLng);
                 points.add(mDestinationMarker.getPosition());

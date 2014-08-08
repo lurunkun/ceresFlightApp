@@ -440,7 +440,8 @@
                 android:layout_height="match_parent"
                 android:text="New Text"
                 android:id="@+id/text_bearing"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:visibility="gone" />
         </FrameLayout>
 
         <Button
@@ -471,7 +472,8 @@
             android:layout_alignParentEnd="false"
             android:layout_alignParentStart="false"
             android:layout_alignParentRight="true"
-            android:layout_gravity="top" />
+            android:layout_gravity="top"
+            android:visibility="gone" />
 
         <Button
             android:layout_width="80dp"
@@ -480,8 +482,7 @@
             android:id="@+id/button_done_field"
             android:clickable="true"
             android:onClick="onClickDoneFieldButton"
-            android:layout_gravity="left|bottom"
-            android:layout_marginLeft="160dp" />
+            android:layout_gravity="left|top" />
 
     </FrameLayout>
 
