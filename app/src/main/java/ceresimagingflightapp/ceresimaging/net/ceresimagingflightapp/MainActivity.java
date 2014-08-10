@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -331,6 +332,7 @@ public class MainActivity extends Activity implements
     protected void onStart() {
         super.onStart();
         mLocationClient.connect();
+        startSBCService();
     }
 
     @Override
@@ -339,6 +341,7 @@ public class MainActivity extends Activity implements
             mLocationClient.removeLocationUpdates(this);
         }
         mLocationClient.disconnect();
+        stopSBCService();
         super.onStop();
     }
 
@@ -574,6 +577,16 @@ public class MainActivity extends Activity implements
         if (flightPlan != null) {
             createMarkersFromJson(flightPlan);
         }
+    }
+
+    public void startSBCService() {
+        Intent i = new Intent(getBaseContext(), SingleBoardConnectionService.class);
+        this.startService(i);
+    }
+
+    public void stopSBCService() {
+        Intent i = new Intent(getBaseContext(), SingleBoardConnectionService.class);
+        this.stopService(i);
     }
 
     public void onToggleCurrentLocation(View view) {
