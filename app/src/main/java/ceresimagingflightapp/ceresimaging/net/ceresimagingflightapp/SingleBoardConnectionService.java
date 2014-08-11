@@ -6,6 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.squareup.otto.Bus;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -15,21 +17,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    static final int UPDATE_INTERVAL = 2000;
-    static final String SBC_URL = "192.168.1.20:9000";
-    static final int SBC_PORT = 9000;
-    static final String TAG = "Ceres SBC Connection Service";
-    static final int mREAD_TIMEOUT = 5000;
+    private static final int UPDATE_INTERVAL = 2000;
+    private static final String SBC_URL = "192.168.1.20:";
+    private static final int SBC_PORT = 9000;
+    private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();
+    private static MainThreadBus mBus = new MainThreadBus(new Bus());
 
     public SingleBoardConnectionService() {
+    }
+
+    public static MainThreadBus getEventBus() {
+        return mBus;
     }
 
     @Override
@@ -52,16 +57,19 @@ public class SingleBoardConnectionService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
     private void retrieveDataFromSBC() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                HttpURLConnection conn = null;
-                InputStream content = null;
-                final StringBuilder data = new StringBuilder();
+                InputStream content;
                 try {
                     HttpClient httpClient = new DefaultHttpClient();
-                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL));
+                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT));
                     content = response.getEntity().getContent();
                     BufferedReader read = new BufferedReader(new InputStreamReader(content));
                     StringBuilder contentString = new StringBuilder();
@@ -70,6 +78,8 @@ public class SingleBoardConnectionService extends Service {
                         contentString.append(line);
                     }
                     Log.e(TAG, contentString.toString());
+                    // send event through eventBus
+                    mBus.post(new SingleBoardDataEvent(contentString.toString()));
                 } catch (MalformedURLException e) {
                     Log.e(TAG, "MalformedURLException", e);
                 } catch (SocketTimeoutException e) {

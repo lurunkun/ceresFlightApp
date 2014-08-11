@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,7 +91,7 @@ public class MainActivity extends Activity implements
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
     private int mScreenWidth;
-    private int mScreenHeight;
+    private Toast mSBCDataToast;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -141,7 +142,6 @@ public class MainActivity extends Activity implements
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
     private LinearLayout mLayoutArrow;
-    private LinearLayout mInformationBox;
     private TextView mTextDistToField;
     private TextView mTextBrngToField;
     private TextView mTextTimeToField;
@@ -190,8 +190,7 @@ public class MainActivity extends Activity implements
             latitude  += polygon.get(i).latitude;
             longitude += polygon.get(i).longitude;
         }
-        LatLng center = new LatLng(latitude/totalPoints, longitude/totalPoints);
-        return center;
+        return new LatLng(latitude/totalPoints, longitude/totalPoints);
     }
     public static Marker getPolygonMarker(Polygon polygon, List<Marker> markers) {
         List<LatLng> points = polygon.getPoints();
@@ -233,7 +232,6 @@ public class MainActivity extends Activity implements
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
         ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
         mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
-        mInformationBox = (LinearLayout) findViewById(R.id.information_box);
         mDrawableLeft.setColorFilter(filter);
         mDrawableRight.setColorFilter(filter);
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
@@ -316,6 +314,9 @@ public class MainActivity extends Activity implements
             toggleRotation.setVisibility(View.INVISIBLE);
         }
         initGeolocation();
+        // start SBC service and register event bus
+        startSBCService();
+        SingleBoardConnectionService.getEventBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -332,7 +333,6 @@ public class MainActivity extends Activity implements
     protected void onStart() {
         super.onStart();
         mLocationClient.connect();
-        startSBCService();
     }
 
     @Override
@@ -341,7 +341,6 @@ public class MainActivity extends Activity implements
             mLocationClient.removeLocationUpdates(this);
         }
         mLocationClient.disconnect();
-        stopSBCService();
         super.onStop();
     }
 
@@ -349,6 +348,12 @@ public class MainActivity extends Activity implements
     protected void onResume() {
         super.onResume();
         mIsFollowing = mToggleCurrentLocation.isChecked();
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopSBCService();
+        super.onDestroy();
     }
 
     @Override
@@ -409,7 +414,6 @@ public class MainActivity extends Activity implements
         Point size = new Point();
         display.getSize(size);
         mScreenWidth = size.x;
-        mScreenHeight = size.y;
     }
 
     public void displayTrackDist(double trackDist) {
@@ -616,7 +620,7 @@ public class MainActivity extends Activity implements
     public void onToggleRotation(View view) {
         if (mMap != null) {
             mIsRotating = ((ToggleButton) view).isChecked();
-            CameraPosition cameraPosition = null;
+            CameraPosition cameraPosition;
             if (mIsRotating) {
                 view.setBackgroundColor(Color.BLUE);
                 if (mIsFollowing) {
@@ -835,7 +839,7 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
             displayTrackDist(trackDist);
             mPassNumber--;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
@@ -863,7 +867,7 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
             displayTrackDist(trackDist);
             mPassNumber++;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
@@ -1142,7 +1146,7 @@ public class MainActivity extends Activity implements
                 mTextCurrentLocation.setText((double)Math.round(lat*1000)/1000 + ", " + (double)Math.round(lng*1000)/1000);
             }
             if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
-                double trackDist = this.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+                double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
                 displayTrackDist(trackDist);
                 adjustLineIndicator(trackDist);
             }
@@ -1176,7 +1180,7 @@ public class MainActivity extends Activity implements
                 long day = (int) TimeUnit.SECONDS.toDays((long) time);
                 long hours = TimeUnit.SECONDS.toHours((long) time) - (day * 24);
                 long minutes = TimeUnit.SECONDS.toMinutes((long) time) - (TimeUnit.SECONDS.toHours((long) time)* 60);
-                long second = TimeUnit.SECONDS.toSeconds((long) time) - (TimeUnit.SECONDS.toMinutes((long) time) *60);
+//                long second = TimeUnit.SECONDS.toSeconds((long) time) - (TimeUnit.SECONDS.toMinutes((long) time) *60);
                 if (hours > 100) { hours = 0; minutes = 0; }
                 String[] description = mDestinationMarker.getSnippet().split(", ");
                 String altitude = description[0].substring(5);
@@ -1191,5 +1195,14 @@ public class MainActivity extends Activity implements
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining));
         }
+    }
+
+    @Subscribe
+    public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
+        if (mSBCDataToast != null) {
+            mSBCDataToast.cancel();
+        }
+        mSBCDataToast = Toast.makeText(this, event.message, Toast.LENGTH_SHORT);
+        mSBCDataToast.show();
     }
 }
