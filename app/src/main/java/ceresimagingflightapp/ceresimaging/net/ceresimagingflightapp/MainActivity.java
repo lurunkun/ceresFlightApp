@@ -130,6 +130,7 @@ public class MainActivity extends Activity implements
     private Dialog mDialogFlightSelect;
     private Dialog mDialogFlightConfirm;
     private Dialog mDialogDoneField;
+    private Dialog mDialogNextField;
     private boolean mFlightSelectConfirmed = false;
     private TextView mTextCurrentLocation;
     private TextView mTextTrackDist;
@@ -909,6 +910,42 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickDoneFieldButton(View view) {
+        if (mDialogNextField == null) {
+            // confirm select next field
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setMessage("Go to next closest field?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // get closest field marker to current position and trigger click
+                            Marker closest = null;
+                            double closestDist = 0;
+                            for (Marker marker : mFlightMarkers) {
+                                if (!mMarkerDoneMap.get(marker)) {
+                                    if (closest == null) {
+                                        closest = marker;
+                                        closestDist = SphericalUtil.computeDistanceBetween(marker.getPosition(), mCurrentMarker.getPosition());
+                                    } else {
+                                        double dist = SphericalUtil.computeDistanceBetween(marker.getPosition(), mCurrentMarker.getPosition());
+                                        if (dist < closestDist) {
+                                            closestDist = dist;
+                                            closest = marker;
+                                        }
+                                    }
+                                }
+                            }
+                            onMarkerClick(closest);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mDialogNextField.dismiss();
+                        }
+                    });
+            mDialogNextField = builder.create();
+        }
         if (mDialogDoneField == null) {
             // confirm
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -924,14 +961,17 @@ public class MainActivity extends Activity implements
                                         marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
                                         mMarkerDoneMap.put(marker, true);
                                         mNumberOfFieldsRemaining--;
-                                        return;
+                                        break;
                                     }
                                 } else {
                                     mDestinationMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
                                     mMarkerDoneMap.put(mDestinationMarker, true);
                                     mNumberOfFieldsRemaining--;
-                                    return;
+                                    break;
                                 }
+                            }
+                            if (mNumberOfFieldsRemaining > 0) {
+                                mDialogNextField.show();
                             }
                         }
                     })
