@@ -315,8 +315,8 @@ public class MainActivity extends Activity implements
         }
         initGeolocation();
         // start SBC service and register event bus
-        startSBCService();
-        SingleBoardConnectionService.getEventBus().register(this);
+//        startSBCService();
+//        SingleBoardConnectionService.getEventBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -352,7 +352,7 @@ public class MainActivity extends Activity implements
 
     @Override
     protected void onDestroy() {
-        stopSBCService();
+//        stopSBCService();
         super.onDestroy();
     }
 
@@ -462,6 +462,36 @@ public class MainActivity extends Activity implements
         mDistLineIndicatorRight.setLayoutParams(layoutRight);
         mDistLineIndicatorLeftStatic.setLayoutParams(layoutLeftStatic);
         mDistLineIndicatorRightStatic.setLayoutParams(layoutRightStatic);
+    }
+
+    // draw flightline to center of edge
+    private void drawFlightLineToEdge() {
+        if (mCurrentFieldPolygon != null && mFlightMarkers != null) {
+            Marker marker = MainActivity.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
+            if (mFlightMarkers.contains(marker)) {
+                double distanceBetween = SphericalUtil.computeDistanceBetween(mInterpA, mInterpB);
+                double headingBetween = SphericalUtil.computeHeading(mInterpA, mInterpB);
+                LatLng pointFlightLineMid = SphericalUtil.computeOffsetOrigin(mInterpB, distanceBetween / 2, headingBetween);
+                if (distanceBetween > 0) {
+                    Marker newDestMarker = mMap.addMarker(new MarkerOptions()
+                            .position(pointFlightLineMid)
+                            .snippet(marker.getSnippet()).visible(false));
+                    if (mFlightLine != null) {
+                        mFlightLine.remove();
+                    }
+                    PolylineOptions pathOptions = new PolylineOptions()
+                            .width(10)
+                            .color(Color.CYAN)
+                            .add(mCurrentLatLng)
+                            .add(pointFlightLineMid);
+                    mDestinationMarker = newDestMarker;
+                    mFlightLine = mMap.addPolyline(pathOptions);
+                    mToggleFlightLine.setChecked(true);
+                    mToggleFlightLine.setBackgroundColor(Color.BLUE);
+                    mIsFlightLineVis = true;
+                }
+            }
+        }
     }
 
     private Location filterPosition(Location current, Location prev, final double GAMMA) {
@@ -843,6 +873,8 @@ public class MainActivity extends Activity implements
             displayTrackDist(trackDist);
             mPassNumber--;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
+            // update flightline
+            drawFlightLineToEdge();
         }
     }
 
@@ -871,6 +903,8 @@ public class MainActivity extends Activity implements
             displayTrackDist(trackDist);
             mPassNumber++;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
+            // update flightline
+            drawFlightLineToEdge();
         }
     }
 
@@ -956,12 +990,6 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickZoomIn(View view) {
-//        CameraPosition cameraPosition;
-//        float zoom = mMap.getCameraPosition().zoom;
-//        cameraPosition = new CameraPosition.Builder()
-//                .target(mCurrentLatLng)
-//                .zoom(zoom)
-//                .build();
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
     }
 
@@ -1047,7 +1075,7 @@ public class MainActivity extends Activity implements
                     pointA = points.get(0);
                     pointB = points.get(points.size()-1);
                 }
-                if (pointA != null && pointB != null) {
+                if (pointA != null && pointB != null && SphericalUtil.computeDistanceBetween(pointA, pointB) > 0) {
                     mCurrentFieldPolygon = polygon;
                     onClickButtonA(findViewById(R.id.button_A), pointA);
                     onClickButtonB(findViewById(R.id.button_B), pointB);
@@ -1081,6 +1109,9 @@ public class MainActivity extends Activity implements
                         int shiftDist = (int) Math.round((distanceBetweenPass/1000)*20);
                         mSeekBarSlider.setProgress(shiftDist);
                         mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
+
+                        // draw flightline to center of edge
+                        drawFlightLineToEdge();
                     }
                 }
             } else {
