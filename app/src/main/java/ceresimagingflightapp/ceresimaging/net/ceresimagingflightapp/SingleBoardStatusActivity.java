@@ -13,9 +13,9 @@ public class SingleBoardStatusActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_single_board_status);
         mTextStatus = (TextView) findViewById(R.id.text_status);
         SingleBoardConnectionService.getEventBus().register(this);
-        setContentView(R.layout.activity_single_board_status);
     }
     @Override
     protected void onDestroy() {
@@ -24,9 +24,6 @@ public class SingleBoardStatusActivity extends Activity {
 
     @Subscribe
     public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
-        if (mTextStatus != null) {
-            mTextStatus.setText(event.message);
-        }
+        mTextStatus.setText(event.message);
     }
-
 }
