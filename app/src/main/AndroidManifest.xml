@@ -38,11 +38,19 @@ android:versionName="1.0" >
             android:value="AIzaSyCVMJ_Egic3hx62obiSJTA82IckWoowOZU" />
 
         <service
-            android:name="ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SingleBoardConnectionService"
-            android:exported="true"
-            android:enabled="true" >
+            android:name=".SingleBoardConnectionService"
+            android:enabled="true"
+            android:exported="true" >
         </service>
+
+        <activity
+            android:name=".SingleBoardStatusActivity"
+            android:label="@string/title_activity_single_board_status"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
-

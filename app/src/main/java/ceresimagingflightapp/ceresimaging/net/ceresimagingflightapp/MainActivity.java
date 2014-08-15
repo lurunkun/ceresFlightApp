@@ -999,6 +999,11 @@ public class MainActivity extends Activity implements
         }
     }
 
+    public void onClickSBCStatusButton(View view) {
+        Intent intent = new Intent(this, SingleBoardStatusActivity.class);
+        startActivity(intent);
+    }
+
     public void onClickButtonToggleSlider(View view) {
         SeekBar distSlider = (SeekBar) findViewById(R.id.seekBar_slider);
         ViewGroup.LayoutParams params = distSlider.getLayoutParams();

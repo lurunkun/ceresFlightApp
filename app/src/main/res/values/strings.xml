@@ -14,5 +14,8 @@
     <string name="on_back_button_message">are you sure you want to exit?</string>
     <string name="polygon_edge_select_message">select this edge?</string>
     <string name="get_location_alert">No GPS Connected!</string>
+    <string name="title_activity_single_board_status">SingleBoardStatusActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
