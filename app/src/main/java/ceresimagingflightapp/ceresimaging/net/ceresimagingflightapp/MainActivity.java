@@ -56,7 +56,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
-import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -91,7 +90,6 @@ public class MainActivity extends Activity implements
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
     private int mScreenWidth;
-    private Toast mSBCDataToast;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -317,7 +315,6 @@ public class MainActivity extends Activity implements
         initGeolocation();
         // start SBC service and register event bus
         startSBCService();
-        SingleBoardConnectionService.getEventBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -623,6 +620,7 @@ public class MainActivity extends Activity implements
         Intent i = new Intent(getBaseContext(), SingleBoardConnectionService.class);
         this.stopService(i);
     }
+
 
     public void onToggleCurrentLocation(View view) {
         if (mMap != null) {
@@ -999,7 +997,7 @@ public class MainActivity extends Activity implements
         }
     }
 
-    public void onClickSBCStatusButton(View view) {
+    public void onClickSBCButton(View view) {
         Intent intent = new Intent(this, SingleBoardStatusActivity.class);
         startActivity(intent);
     }
@@ -1273,12 +1271,4 @@ public class MainActivity extends Activity implements
         }
     }
 
-    @Subscribe
-    public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
-        if (mSBCDataToast != null) {
-            mSBCDataToast.cancel();
-        }
-        mSBCDataToast = Toast.makeText(this, event.message, Toast.LENGTH_SHORT);
-        mSBCDataToast.show();
-    }
 }
