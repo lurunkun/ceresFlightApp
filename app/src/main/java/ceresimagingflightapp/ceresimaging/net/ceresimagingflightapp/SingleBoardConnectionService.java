@@ -24,7 +24,7 @@ import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
     private static final int UPDATE_INTERVAL = 2000;
-    private static final String SBC_URL = "192.168.1.20:";
+    private static final String SBC_URL = "192.168.44.78:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();

@@ -316,8 +316,8 @@ public class MainActivity extends Activity implements
         }
         initGeolocation();
         // start SBC service and register event bus
-//        startSBCService();
-//        SingleBoardConnectionService.getEventBus().register(this);
+        startSBCService();
+        SingleBoardConnectionService.getEventBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -353,7 +353,7 @@ public class MainActivity extends Activity implements
 
     @Override
     protected void onDestroy() {
-//        stopSBCService();
+        stopSBCService();
         super.onDestroy();
     }
 
