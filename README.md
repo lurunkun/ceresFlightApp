@@ -16,6 +16,6 @@ Import with Android Studio using remote git repo
 ---------------
 For tablet-SBC communications
 
-dependencies: node.js
+**dependencies:** node.js
 
-node-modules: express
+**node-modules:** express
