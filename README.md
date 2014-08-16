@@ -8,7 +8,7 @@ Pilot guidance application
 - Android Studio Project
 - Gradle
 
-**build**
+**build:**
 
 Import with Android Studio using remote git repo
 
