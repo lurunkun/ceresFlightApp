@@ -10,37 +10,24 @@ if (buff.length === 0) {
 }
 
 setInterval(function() {
-      lockFile.lock('status.lock',{retries: 50, retryWait: 1}, function(err) {
-        if (err) console.log(err);
-        writeStats('dummyStatus', function() {
-          lockFile.unlockSync('status.lock');
-        });
-      });
-}, 50);
+  lockFile.lockSync('stats.lock');
+  writeStats('dummyStatus');
+  lockFile.unlockSync('stats.lock');
+}, 10);
 
 setInterval(function() {
-    lockFile.check('status.lock', function() {})
-      lockFile.lock('status.lock',{retries: 50, retryWait: 1}, function(err) {
-        if (err) console.log(err);
-        writeStats('dummyError', function() {
-          lockFile.unlockSync('status.lock');
-        });
-      });
-}, 50);
+  lockFile.lockSync('stats.lock');
+  writeStats('dummyError');
+  lockFile.unlockSync('stats.lock');
+}, 10);
 
 
-function writeStats(type, callback) {
-  fs.readFile(__dirname+'/data/status.json', function(err, status) {
-    var status = JSON.parse(status);
-    fs.readFile(__dirname+'/data/' + type + '.json', function(readErr, dummyData) {
-      if (readErr) console.log(readErr);
-      status.push(JSON.parse(dummyData));
-      fs.writeFile(__dirname+'/data/status.json', JSON.stringify(status), function(writeErr) {
-        if (writeErr) console.log(writeErr);
-        console.log('write dummy ' + type);
-        callback();
-      });
-    });
-  });
+function writeStats(type) {
+  var status = fs.readFileSync(__dirname+'/data/status.json');
+  var data = fs.readFileSync(__dirname + '/data/' + type + '.json');
+  status = JSON.parse(status);
+  status.push(JSON.parse(data));
+  fs.writeFileSync(__dirname+'/data/status.json', JSON.stringify(status));
+  console.log('write dummy ' + type);
 }
 
