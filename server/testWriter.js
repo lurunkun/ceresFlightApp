@@ -10,7 +10,7 @@ if (buff.length === 0) {
 }
 
 setInterval(function() {
-      lockFile.lock('status.lock',{retries: 10, retryWait: 1}, function(err) {
+      lockFile.lock('status.lock',{retries: 50, retryWait: 1}, function(err) {
         if (err) console.log(err);
         writeStats('dummyStatus', function() {
           lockFile.unlockSync('status.lock');
@@ -19,13 +19,14 @@ setInterval(function() {
 }, 50);
 
 setInterval(function() {
-      lockFile.lock('status.lock',{retries: 10, retryWait: 1}, function(err) {
+    lockFile.check('status.lock', function() {})
+      lockFile.lock('status.lock',{retries: 50, retryWait: 1}, function(err) {
         if (err) console.log(err);
         writeStats('dummyError', function() {
           lockFile.unlockSync('status.lock');
         });
       });
-}, 200);
+}, 50);
 
 
 function writeStats(type, callback) {
