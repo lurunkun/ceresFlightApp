@@ -9,14 +9,16 @@ if (buff.length === 0) {
   fs.writeFileSync(__dirname+'/data/status.json', '[]');
 }
 
+var opt = {  stale : 20, pollPeriod : 1, retries : 10 };
+
 setInterval(function() {
-  lockFile.lockSync('stats.lock');
+  lockFile.lockSync('stats.lock', opt);
   writeStats('dummyStatus');
   lockFile.unlockSync('stats.lock');
 }, 10);
 
 setInterval(function() {
-  lockFile.lockSync('stats.lock');
+  lockFile.lockSync('stats.lock', opt);
   writeStats('dummyError');
   lockFile.unlockSync('stats.lock');
 }, 10);
