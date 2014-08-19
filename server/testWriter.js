@@ -10,19 +10,25 @@ if (buff.length === 0) {
 }
 
 setInterval(function() {
-      lockFile.lock('status.lock', function() {
-        writeStats('dummyStatus');
+      lockFile.lock('status.lock',{retries: 10, retryWait: 1}, function(err) {
+        if (err) console.log(err);
+        writeStats('dummyStatus', function() {
+          lockFile.unlockSync('status.lock');
+        });
       });
-}, 5);
+}, 50);
 
 setInterval(function() {
-      lockFile.lock('status.lock', function() {
-        writeStats('dummyError');
+      lockFile.lock('status.lock',{retries: 10, retryWait: 1}, function(err) {
+        if (err) console.log(err);
+        writeStats('dummyError', function() {
+          lockFile.unlockSync('status.lock');
+        });
       });
-}, 20);
+}, 200);
 
 
-function writeStats(type) {
+function writeStats(type, callback) {
   fs.readFile(__dirname+'/data/status.json', function(err, status) {
     var status = JSON.parse(status);
     fs.readFile(__dirname+'/data/' + type + '.json', function(readErr, dummyData) {
@@ -31,6 +37,7 @@ function writeStats(type) {
       fs.writeFile(__dirname+'/data/status.json', JSON.stringify(status), function(writeErr) {
         if (writeErr) console.log(writeErr);
         console.log('write dummy ' + type);
+        callback();
       });
     });
   });
