@@ -3,8 +3,8 @@ var fs = require('fs');
 var lockFile = require('lockfile');
 var app = express();
 var STATUS_FILE_PATH = __dirname+'/data/status.json';
-var opt = {  stale : 200, pollPeriod : 1, retries : 0 };
-var testWriter = require('./testWriter.js');
+var opt = {  stale : 10, pollPeriod : 10, retries : 0 };
+// var testWriter = require('./testWriter.js');
 
 
 app.get('/', function(req, res) {
@@ -23,7 +23,7 @@ app.get('/', function(req, res) {
   }
 });
 
-testWriter();
+// testWriter();
 
 var server = app.listen(9000, function() {
   console.log('Listening on port %d', server.address().port);
