@@ -1,6 +1,6 @@
 var express = require('express');
 var fs = require('fs');
-var lockFile = require('lockFile');
+var lockFile = require('lockfile');
 var app = express();
 var STATUS_FILE_PATH = __dirname+'/data/status.json';
 
