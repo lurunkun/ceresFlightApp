@@ -23,8 +23,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    private static final int UPDATE_INTERVAL = 2000;
-    private static final String SBC_URL = "192.168.1.233:";
+    private static final int UPDATE_INTERVAL = 50;
+    private static final String SBC_URL = "192.168.1.20:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();
@@ -77,7 +77,7 @@ public class SingleBoardConnectionService extends Service {
                     while ((line = read.readLine()) != null) {
                         contentString.append(line);
                     }
-                    Log.e(TAG, contentString.toString());
+//                    Log.e(TAG, contentString.toString());
                     // send event through eventBus
                     mBus.post(new SingleBoardDataEvent(contentString.toString()));
                 } catch (MalformedURLException e) {
