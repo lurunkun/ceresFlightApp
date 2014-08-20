@@ -9,19 +9,27 @@ if (buff.length === 0) {
   fs.writeFileSync(__dirname+'/data/status.json', '[]');
 }
 
-var opt = {  stale : 20, pollPeriod : 1, retries : 10 };
+var opt = {  stale : 1000, pollPeriod : 1, retries : 100 };
 
+var count = 0;
 setInterval(function() {
-  lockFile.lockSync('stats.lock', opt);
-  writeStats('dummyStatus');
-  lockFile.unlockSync('stats.lock');
+  if (count > 5) count = 0;
+
+  // write status
+  try {
+    lockFile.lockSync('stats.lock', opt);
+    writeStats('dummyStatus');
+    // write error
+    if (count === 5) {
+      writeStats('dummyError');
+    }
+    lockFile.unlockSync('stats.lock');
+    count++;
+  } catch (e) {
+    console.log(e);
+  }
 }, 10);
 
-setInterval(function() {
-  lockFile.lockSync('stats.lock', opt);
-  writeStats('dummyError');
-  lockFile.unlockSync('stats.lock');
-}, 10);
 
 
 function writeStats(type) {
