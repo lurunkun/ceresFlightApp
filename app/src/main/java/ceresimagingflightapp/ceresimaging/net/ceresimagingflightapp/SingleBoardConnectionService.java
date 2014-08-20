@@ -1,7 +1,9 @@
 package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 
+import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -12,6 +14,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,8 +28,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    private static final int UPDATE_INTERVAL = 50;
-    private static final String SBC_URL = "192.168.1.20:";
+    private static final int UPDATE_INTERVAL = 10;
+    private static final String SBC_URL = "192.168.1.233:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();
@@ -64,6 +69,7 @@ public class SingleBoardConnectionService extends Service {
 
     private void retrieveDataFromSBC() {
         timer.scheduleAtFixedRate(new TimerTask() {
+            @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
                 InputStream content;
@@ -77,9 +83,17 @@ public class SingleBoardConnectionService extends Service {
                     while ((line = read.readLine()) != null) {
                         contentString.append(line);
                     }
-//                    Log.e(TAG, contentString.toString());
-                    // send event through eventBus
-                    mBus.post(new SingleBoardDataEvent(contentString.toString()));
+                    // parse the string retrieved to JSON Array
+                    try {
+                        JSONArray statusArray = new JSONArray(contentString.toString());
+                        for (int i=0; i < statusArray.length(); i++) {
+                            JSONObject statusObject = statusArray.getJSONObject(i);
+                            // send statusObject event through eventBus
+                            mBus.post(new SingleBoardDataEvent(statusObject));
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "JSON Status Parse Failed.", e);
+                    }
                 } catch (MalformedURLException e) {
                     Log.e(TAG, "MalformedURLException", e);
                 } catch (SocketTimeoutException e) {

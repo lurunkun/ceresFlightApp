@@ -34,7 +34,10 @@ function writeStats(type) {
   var status = fs.readFileSync(__dirname+'/data/status.json');
   var data = fs.readFileSync(__dirname + '/data/' + type + '.json');
   status = JSON.parse(status);
-  status.push(JSON.parse(data));
+  data = JSON.parse(data);
+  data.timeStamp = new Date().toTimeString() + " ms: " + new Date().getMilliseconds();
+  console.log(data);
+  status.push(data);
   fs.writeFileSync(__dirname+'/data/status.json', JSON.stringify(status));
   console.log('write dummy ' + type);
 }

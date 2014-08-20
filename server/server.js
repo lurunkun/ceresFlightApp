@@ -17,7 +17,7 @@ app.get('/', function(req, res) {
     res.json(JSON.parse(data));
   } catch (e) {
     console.log(e);
-    res.send('error');
+    res.json([]);
   } finally {
     return;
   }
