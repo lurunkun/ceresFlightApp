@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
+import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -315,6 +316,7 @@ public class MainActivity extends Activity implements
         initGeolocation();
         // start SBC service and register event bus
         startSBCService();
+        SingleBoardConnectionService.getEventBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -1268,6 +1270,14 @@ public class MainActivity extends Activity implements
 
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining));
+        }
+    }
+
+    @Subscribe
+    public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
+        if (event.type.equals(SingleBoardStatusActivity.ERROR)) {
+        }
+        else if (event.type.equals(SingleBoardStatusActivity.STATUS)) {
         }
     }
 
