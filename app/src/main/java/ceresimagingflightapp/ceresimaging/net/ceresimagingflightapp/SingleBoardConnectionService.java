@@ -91,6 +91,7 @@ public class SingleBoardConnectionService extends Service {
                             JSONObject statusObject = statusArray.getJSONObject(i);
                             // send statusObject event through eventBus
                             mBus.post(new SingleBoardDataEvent(statusObject));
+                            mBus.post(new SingleBoardConnectionEvent(true));
                         }
                     } catch (JSONException e) {
                         Log.e(TAG, "JSON Status Parse Failed.", e);

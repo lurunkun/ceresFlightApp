@@ -138,6 +138,7 @@ public class MainActivity extends Activity implements
     private ToggleButton mToggleFlightLine;
     private SeekBar mSeekBarSlider;
     private Button mButtonToggleSeekBar;
+    private Button mButtonSBC;
     private ImageView mImageTrackDistDir;
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
@@ -236,6 +237,7 @@ public class MainActivity extends Activity implements
         mDrawableRight.setColorFilter(filter);
         mImageTrackDistDir.setImageDrawable(mDrawableLeft);
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
+        mButtonSBC = (Button) findViewById(R.id.button_SBC_status);
         mDistLineIndicatorLeft = findViewById(R.id.dist_indicator_line_left);
         mDistLineIndicatorRight = findViewById(R.id.dist_indicator_line_right);
         mDistLineIndicatorLeftStatic = findViewById(R.id.dist_left_indicator_static);
@@ -1274,10 +1276,11 @@ public class MainActivity extends Activity implements
     }
 
     @Subscribe
-    public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
-        if (event.type.equals(SingleBoardStatusActivity.ERROR)) {
-        }
-        else if (event.type.equals(SingleBoardStatusActivity.STATUS)) {
+    public void onSingleBoardDataEvent(SingleBoardConnectionEvent event) {
+        if (event.connected) {
+            mButtonSBC.setBackgroundColor(Color.GREEN);
+        } else {
+            mButtonSBC.setBackgroundColor(Color.LTGRAY);
         }
     }
 
