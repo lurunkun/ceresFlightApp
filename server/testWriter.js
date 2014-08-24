@@ -28,7 +28,7 @@ setInterval(function() {
   } catch (e) {
     console.log(e);
   }
-}, 50);
+}, 200);
 
 function writeStats(type) {
   var status = fs.readFileSync(__dirname+'/data/status.json');

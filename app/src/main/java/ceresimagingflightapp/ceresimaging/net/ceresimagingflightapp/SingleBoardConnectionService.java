@@ -29,12 +29,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    private static final int UPDATE_INTERVAL = 10;
+    private static final int UPDATE_INTERVAL = 100;
     private static final String SBC_URL = "192.168.0.5:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();
     private static MainThreadBus mBus = new MainThreadBus(new Bus());
+
+    static final String STATUS = "Status";
+    static final String ERROR = "Error";
+    static boolean inError = false;
 
     public SingleBoardConnectionService() {
     }
@@ -91,8 +95,11 @@ public class SingleBoardConnectionService extends Service {
                             JSONObject statusObject = statusArray.getJSONObject(i);
                             // send statusObject event through eventBus
                             mBus.post(new SingleBoardDataEvent(statusObject));
-                            mBus.post(new SingleBoardConnectionEvent(true));
+                            if (statusObject.getString("type").equals(SingleBoardConnectionService.ERROR)) {
+                                SingleBoardConnectionService.inError = true;
+                            }
                         }
+                        mBus.post(new SingleBoardConnectionEvent(true));
                     } catch (JSONException e) {
                         Log.e(TAG, "JSON Status Parse Failed.", e);
                     }

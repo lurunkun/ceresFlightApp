@@ -9,9 +9,6 @@ import com.squareup.otto.Subscribe;
 
 public class SingleBoardStatusActivity extends Activity {
 
-    static final String STATUS = "Status";
-    static final String ERROR = "Error";
-
     private TextView mTextStatusName;
     private TextView mTextStatusTime;
     private TextView mTextStatusData;
@@ -42,12 +39,12 @@ public class SingleBoardStatusActivity extends Activity {
 
     @Subscribe
     public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
-        if (event.type.equals(SingleBoardStatusActivity.ERROR)) {
+        if (event.type.equals(SingleBoardConnectionService.ERROR)) {
             mTextErrorName.setText(event.name);
             mTextErrorTime.setText(event.timeStamp);
             mTextErrorData.setText(event.data);
         }
-        else if (event.type.equals(SingleBoardStatusActivity.STATUS)) {
+        else if (event.type.equals(SingleBoardConnectionService.STATUS)) {
             mTextStatusName.setText(event.name);
             mTextStatusTime.setText(event.timeStamp);
             mTextStatusData.setText(event.data);

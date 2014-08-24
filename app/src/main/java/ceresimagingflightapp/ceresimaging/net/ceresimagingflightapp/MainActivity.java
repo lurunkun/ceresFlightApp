@@ -1276,11 +1276,25 @@ public class MainActivity extends Activity implements
     }
 
     @Subscribe
-    public void onSingleBoardDataEvent(SingleBoardConnectionEvent event) {
-        if (event.connected) {
-            mButtonSBC.setBackgroundColor(Color.GREEN);
+    public void onSingleBoardConnectionEvent(SingleBoardConnectionEvent event) {
+        if (SingleBoardConnectionService.inError) {
+            mButtonSBC.setBackgroundColor(Color.RED);
         } else {
-            mButtonSBC.setBackgroundColor(Color.LTGRAY);
+            if (event.connected) {
+                mButtonSBC.setBackgroundColor(Color.GREEN);
+            } else {
+                mButtonSBC.setBackgroundColor(Color.LTGRAY);
+            }
+        }
+    }
+
+    @Subscribe
+    public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
+        if (SingleBoardConnectionService.inError) {
+            mButtonSBC.setBackgroundColor(Color.RED);
+        } else {
+            if (event.type.equals(SingleBoardConnectionService.STATUS)) {
+            }
         }
     }
 
