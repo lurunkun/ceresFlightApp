@@ -13,6 +13,7 @@ import com.squareup.otto.Bus;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +30,7 @@ import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
     private static final int UPDATE_INTERVAL = 10;
-    private static final String SBC_URL = "192.168.1.233:";
+    private static final String SBC_URL = "192.168.0.5:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private Timer timer = new Timer();
@@ -95,11 +96,17 @@ public class SingleBoardConnectionService extends Service {
                         Log.e(TAG, "JSON Status Parse Failed.", e);
                     }
                 } catch (MalformedURLException e) {
-                    Log.e(TAG, "MalformedURLException", e);
+                    Log.e(TAG, "LOG MalformedURLException", e);
+                    mBus.post(new SingleBoardConnectionEvent(false));
                 } catch (SocketTimeoutException e) {
-                    Log.e(TAG, "Error timed out", e);
+                    Log.e(TAG, "LOG Error timed out", e);
+                    mBus.post(new SingleBoardConnectionEvent(false));
+                } catch (HttpHostConnectException e) {
+                    Log.e(TAG, "LOG connection refused");
+                    mBus.post(new SingleBoardConnectionEvent(false));
                 } catch (IOException e) {
-                    Log.e(TAG, "Error connecting to service", e);
+                    Log.e(TAG, "LOG Error connecting to service", e);
+                    mBus.post(new SingleBoardConnectionEvent(false));
                 } finally {
                 }
             }
