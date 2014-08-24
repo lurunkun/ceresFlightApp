@@ -23,6 +23,10 @@ app.get('/', function(req, res) {
   }
 });
 
+app.get('/reboot', function(req, res) {
+
+});
+
 // testWriter();
 
 var server = app.listen(9000, function() {

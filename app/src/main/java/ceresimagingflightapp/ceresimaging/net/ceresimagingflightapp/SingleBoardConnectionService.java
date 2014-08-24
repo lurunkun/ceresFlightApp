@@ -106,15 +106,19 @@ public class SingleBoardConnectionService extends Service {
                 } catch (MalformedURLException e) {
                     Log.e(TAG, "LOG MalformedURLException", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
+                    SingleBoardConnectionService.inError = false;
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "LOG Error timed out", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
+                    SingleBoardConnectionService.inError = false;
                 } catch (HttpHostConnectException e) {
                     Log.e(TAG, "LOG connection refused");
                     mBus.post(new SingleBoardConnectionEvent(false));
+                    SingleBoardConnectionService.inError = false;
                 } catch (IOException e) {
                     Log.e(TAG, "LOG Error connecting to service", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
+                    SingleBoardConnectionService.inError = false;
                 } finally {
                 }
             }
