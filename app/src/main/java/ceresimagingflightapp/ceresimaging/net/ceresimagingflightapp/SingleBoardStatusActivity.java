@@ -39,12 +39,12 @@ public class SingleBoardStatusActivity extends Activity {
 
     @Subscribe
     public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
-        if (event.type.equals(SingleBoardConnectionService.ERROR)) {
+        if (event.type.equals(SingleBoardStatus.ERROR)) {
             mTextErrorName.setText(event.name);
             mTextErrorTime.setText(event.timeStamp);
             mTextErrorData.setText(event.data);
         }
-        else if (event.type.equals(SingleBoardConnectionService.STATUS)) {
+        else if (event.type.equals(SingleBoardStatus.STATUS)) {
             mTextStatusName.setText(event.name);
             mTextStatusTime.setText(event.timeStamp);
             mTextStatusData.setText(event.data);

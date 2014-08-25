@@ -36,8 +36,6 @@ public class SingleBoardConnectionService extends Service {
     private Timer timer = new Timer();
     private static MainThreadBus mBus = new MainThreadBus(new Bus());
 
-    static final String STATUS = "Status";
-    static final String ERROR = "Error";
     static boolean inError = false;
 
     public SingleBoardConnectionService() {
@@ -95,7 +93,7 @@ public class SingleBoardConnectionService extends Service {
                             JSONObject statusObject = statusArray.getJSONObject(i);
                             // send statusObject event through eventBus
                             mBus.post(new SingleBoardDataEvent(statusObject));
-                            if (statusObject.getString("type").equals(SingleBoardConnectionService.ERROR)) {
+                            if (statusObject.getString("type").equals(SingleBoardStatus.ERROR)) {
                                 SingleBoardConnectionService.inError = true;
                             }
                         }

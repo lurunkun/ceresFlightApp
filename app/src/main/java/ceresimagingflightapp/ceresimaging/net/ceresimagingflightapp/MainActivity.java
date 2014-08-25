@@ -1293,7 +1293,7 @@ public class MainActivity extends Activity implements
         if (SingleBoardConnectionService.inError) {
             mButtonSBC.setBackgroundColor(Color.RED);
         } else {
-            if (event.type.equals(SingleBoardConnectionService.STATUS)) {
+            if (event.type.equals(SingleBoardStatus.STATUS)) {
             }
         }
     }
