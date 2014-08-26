@@ -1,6 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 var lockFile = require('lockfile');
+var sleep = require('sleep');
 var app = express();
 var STATUS_FILE_PATH = __dirname+'/data/status.json';
 var opt = {  stale : 10, pollPeriod : 10, retries : 0 };
