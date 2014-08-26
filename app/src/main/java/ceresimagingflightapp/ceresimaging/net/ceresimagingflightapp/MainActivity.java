@@ -1002,6 +1002,9 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickSBCButton(View view) {
+        if (SingleBoardConnectionService.inWarning) {
+            SingleBoardConnectionService.inWarning = false;
+        }
         Intent intent = new Intent(this, SingleBoardStatusActivity.class);
         startActivity(intent);
     }
@@ -1279,6 +1282,8 @@ public class MainActivity extends Activity implements
     public void onSingleBoardConnectionEvent(SingleBoardConnectionEvent event) {
         if (SingleBoardConnectionService.inError) {
             mButtonSBC.setBackgroundColor(Color.RED);
+        } else if (SingleBoardConnectionService.inWarning) {
+            mButtonSBC.setBackgroundColor(Color.YELLOW);
         } else {
             if (event.connected) {
                 mButtonSBC.setBackgroundColor(Color.GREEN);
@@ -1292,6 +1297,8 @@ public class MainActivity extends Activity implements
     public void onSingleBoardDataEvent(SingleBoardDataEvent event) {
         if (SingleBoardConnectionService.inError) {
             mButtonSBC.setBackgroundColor(Color.RED);
+        } else if (SingleBoardConnectionService.inWarning) {
+            mButtonSBC.setBackgroundColor(Color.YELLOW);
         } else {
             if (event.type.equals(SingleBoardStatus.STATUS)) {
             }

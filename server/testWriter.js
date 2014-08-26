@@ -13,15 +13,18 @@ var opt = {  stale : 50, pollPeriod : 2, retries : 100 };
 
 var count = 0;
 setInterval(function() {
-  if (count > 5) count = 0;
+  if (count > 20) count = 0;
 
   // write status
   try {
     lockFile.lockSync('stats.lock', opt);
     writeStats('dummyStatus');
     // write error
-    if (count === 5) {
+    if (count === 20) {
       writeStats('dummyError');
+    }
+    if (count === 10 || 15) {
+      writeStats('dummyWarning');
     }
     lockFile.unlockSync('stats.lock');
     count++;

@@ -37,6 +37,7 @@ public class SingleBoardConnectionService extends Service {
     private static MainThreadBus mBus = new MainThreadBus(new Bus());
 
     static boolean inError = false;
+    static boolean inWarning = false;
 
     public SingleBoardConnectionService() {
     }
@@ -93,8 +94,11 @@ public class SingleBoardConnectionService extends Service {
                             JSONObject statusObject = statusArray.getJSONObject(i);
                             // send statusObject event through eventBus
                             mBus.post(new SingleBoardDataEvent(statusObject));
-                            if (statusObject.getString("type").equals(SingleBoardStatus.ERROR)) {
+                            String status = statusObject.getString("type");
+                            if (status.equals(SingleBoardStatus.ERROR)) {
                                 SingleBoardConnectionService.inError = true;
+                            } else if (status.equals(SingleBoardStatus.WARNING)) {
+                                SingleBoardConnectionService.inWarning = true;
                             }
                         }
                         mBus.post(new SingleBoardConnectionEvent(true));
@@ -105,18 +109,22 @@ public class SingleBoardConnectionService extends Service {
                     Log.e(TAG, "LOG MalformedURLException", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
                     SingleBoardConnectionService.inError = false;
+                    SingleBoardConnectionService.inWarning = false;
                 } catch (SocketTimeoutException e) {
                     Log.e(TAG, "LOG Error timed out", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
                     SingleBoardConnectionService.inError = false;
+                    SingleBoardConnectionService.inWarning = false;
                 } catch (HttpHostConnectException e) {
                     Log.e(TAG, "LOG connection refused");
                     mBus.post(new SingleBoardConnectionEvent(false));
                     SingleBoardConnectionService.inError = false;
+                    SingleBoardConnectionService.inWarning = false;
                 } catch (IOException e) {
                     Log.e(TAG, "LOG Error connecting to service", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
                     SingleBoardConnectionService.inError = false;
+                    SingleBoardConnectionService.inWarning = false;
                 } finally {
                 }
             }
