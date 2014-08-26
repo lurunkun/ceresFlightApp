@@ -36,6 +36,10 @@ public class SingleBoardStatusActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
     }
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 
     @Subscribe
     public void onSingleBoardDataEvent(SingleBoardDataEvent event) {

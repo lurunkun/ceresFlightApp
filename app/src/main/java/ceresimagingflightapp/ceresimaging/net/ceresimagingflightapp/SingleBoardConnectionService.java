@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,6 +39,8 @@ public class SingleBoardConnectionService extends Service {
 
     static boolean inError = false;
     static boolean inWarning = false;
+    // list of errors received
+    static ArrayList<SingleBoardDataEvent> mErrors = new ArrayList<SingleBoardDataEvent>();
 
     public SingleBoardConnectionService() {
     }
@@ -95,8 +98,11 @@ public class SingleBoardConnectionService extends Service {
                             // send statusObject event through eventBus
                             mBus.post(new SingleBoardDataEvent(statusObject));
                             String status = statusObject.getString("type");
+                            // if received error
                             if (status.equals(SingleBoardStatus.ERROR)) {
                                 SingleBoardConnectionService.inError = true;
+                                mErrors.add(new SingleBoardDataEvent(statusObject));
+                            // if received warning
                             } else if (status.equals(SingleBoardStatus.WARNING)) {
                                 SingleBoardConnectionService.inWarning = true;
                             }
