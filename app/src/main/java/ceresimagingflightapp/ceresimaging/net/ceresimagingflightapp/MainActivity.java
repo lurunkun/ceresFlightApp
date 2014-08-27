@@ -1280,7 +1280,11 @@ public class MainActivity extends Activity implements
 
     @Subscribe
     public void onSingleBoardConnectionEvent(SingleBoardConnectionEvent event) {
-        if (SingleBoardConnectionService.inError) {
+        if (event.restarting) {
+            mButtonSBC.setBackgroundColor(Color.LTGRAY);
+            Toast.makeText(getApplicationContext(), "restarting SBC", Toast.LENGTH_LONG).show();
+            SingleBoardConnectionService.clearErrors();
+        } else if (SingleBoardConnectionService.inError) {
             mButtonSBC.setBackgroundColor(Color.RED);
         } else if (SingleBoardConnectionService.inWarning) {
             mButtonSBC.setBackgroundColor(Color.YELLOW);

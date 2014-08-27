@@ -2,6 +2,8 @@ package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
@@ -19,6 +21,10 @@ public class SingleBoardStatusActivity extends Activity {
     private TextView mTextErrorTime;
     private TextView mTextErrorData;
 
+    private Button mButtonRestartSBC;
+
+    ArrayList<SingleBoardDataEvent> mErrorList = new ArrayList<SingleBoardDataEvent>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,18 +37,27 @@ public class SingleBoardStatusActivity extends Activity {
         mTextErrorName = (TextView) findViewById(R.id.text_error_name);
         mTextErrorTime = (TextView) findViewById(R.id.text_error_time);
         mTextErrorData = (TextView) findViewById(R.id.text_error_data);
+        // restart button
+        mButtonRestartSBC = (Button) findViewById(R.id.button_restart_SBC);
 
-        ArrayList errorList = SingleBoardConnectionService.mErrors;
-        SingleBoardDataEvent lastError = (SingleBoardDataEvent) errorList.get(errorList.size() - 1);
-        mTextErrorName.setText(lastError.name);
-        mTextErrorTime.setText(lastError.timeStamp);
-        mTextErrorData.setText(lastError.data);
+        // display errors
+        mErrorList = SingleBoardConnectionService.mErrors;
+        if (mErrorList.size() > 0) {
+            SingleBoardDataEvent lastError = mErrorList.get(mErrorList.size() - 1);
+            mTextErrorName.setText(lastError.name);
+            mTextErrorTime.setText(lastError.timeStamp);
+            mTextErrorData.setText(lastError.data);
+        }
 
         SingleBoardConnectionService.getEventBus().register(this);
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    public void onClickRestartButton(View view) {
+        SingleBoardConnectionService.requestRestartSBC();
     }
 
     @Subscribe
@@ -57,5 +72,9 @@ public class SingleBoardStatusActivity extends Activity {
             mTextStatusTime.setText(event.timeStamp);
             mTextStatusData.setText(event.data);
         }
+    }
+
+    @Subscribe
+    public void onSingleBoardConnectionEvent(SingleBoardConnectionEvent event) {
     }
 }

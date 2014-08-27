@@ -25,14 +25,15 @@ app.get('/', function(req, res) {
 });
 
 app.get('/reboot', function(req, res) {
-  sleep.sleep(20);
+  console.log("restarting");
+  res.send("restarting");
+  sleep.sleep(10);
   try {
     lockFile.lockSync('status.lock', opt);
     fs.writeFileSync(STATUS_FILE_PATH, '[]');
     lockFile.unlockSync('status.lock');
   } catch(e) {
     console.log(e);
-    res.json([]);
   } finally {
     return;
   }

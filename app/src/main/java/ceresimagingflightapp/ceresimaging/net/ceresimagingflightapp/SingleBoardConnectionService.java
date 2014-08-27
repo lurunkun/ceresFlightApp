@@ -30,17 +30,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    private static final int UPDATE_INTERVAL = 100;
+    private static final int UPDATE_INTERVAL = 1000;
     private static final String SBC_URL = "192.168.1.6:";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
-    private Timer timer = new Timer();
+    private static Timer timer = new Timer();
     private static MainThreadBus mBus = new MainThreadBus(new Bus());
 
     static boolean inError = false;
     static boolean inWarning = false;
     // list of errors received
     static ArrayList<SingleBoardDataEvent> mErrors = new ArrayList<SingleBoardDataEvent>();
+
+    private static TimerTask mRetrieveDataTask;
 
     public SingleBoardConnectionService() {
     }
@@ -52,6 +54,7 @@ public class SingleBoardConnectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "service started", Toast.LENGTH_SHORT).show();
+        mRetrieveDataTask = createRetrieveDataTask();
         retrieveDataFromSBC();
         return Service.START_STICKY;
     }
@@ -59,7 +62,8 @@ public class SingleBoardConnectionService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        timer.cancel();
+        SingleBoardConnectionService.timer.cancel();
+        SingleBoardConnectionService.timer.purge();
         Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
     }
 
@@ -74,8 +78,58 @@ public class SingleBoardConnectionService extends Service {
         super.onCreate();
     }
 
-    private void retrieveDataFromSBC() {
-        timer.scheduleAtFixedRate(new TimerTask() {
+    public static void requestRestartSBC() {
+        pauseRetrieveDataTask();
+        Thread thread = new Thread(new Runnable() {
+            InputStream content;
+            @Override
+            public void run() {
+                try {
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT + "/reboot"));
+                    content = response.getEntity().getContent();
+                    BufferedReader read = new BufferedReader(new InputStreamReader(content));
+                    StringBuilder contentString = new StringBuilder();
+                    String line;
+                    while ((line = read.readLine()) != null) {
+                        contentString.append(line);
+                    }
+                    String responseString = contentString.toString();
+                    if (responseString.equals("restarting")) {
+                        mBus.post(new SingleBoardConnectionEvent(false, true));
+                    } else {
+                        mBus.post(new SingleBoardConnectionEvent(false, false));
+                    }
+                    read.close();
+                    resumeRetrieveDataTask();
+                } catch (MalformedURLException e) {
+
+                } catch (IOException e) {
+
+                }
+
+            }
+        });
+        thread.start();
+    }
+
+    public static void clearErrors() {
+        mErrors.clear();
+        inError = false;
+    }
+
+    private static void pauseRetrieveDataTask() {
+        SingleBoardConnectionService.timer.cancel();
+        SingleBoardConnectionService.timer.purge();
+    }
+    private static void resumeRetrieveDataTask() {
+        SingleBoardConnectionService.timer = new Timer();
+        mRetrieveDataTask = createRetrieveDataTask();
+        SingleBoardConnectionService.timer.scheduleAtFixedRate(mRetrieveDataTask, 0, UPDATE_INTERVAL);
+    }
+
+    private static TimerTask createRetrieveDataTask() {
+        return new TimerTask() {
             @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
@@ -134,6 +188,11 @@ public class SingleBoardConnectionService extends Service {
                 } finally {
                 }
             }
-        }, 0, UPDATE_INTERVAL);
+        };
+    }
+
+    private void retrieveDataFromSBC() {
+//        timer = new Timer();
+        SingleBoardConnectionService.timer.scheduleAtFixedRate(mRetrieveDataTask, 0, UPDATE_INTERVAL);
     }
 }
