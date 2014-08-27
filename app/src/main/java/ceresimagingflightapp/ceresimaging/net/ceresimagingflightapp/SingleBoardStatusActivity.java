@@ -6,6 +6,8 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import java.util.ArrayList;
+
 
 public class SingleBoardStatusActivity extends Activity {
 
@@ -30,15 +32,17 @@ public class SingleBoardStatusActivity extends Activity {
         mTextErrorTime = (TextView) findViewById(R.id.text_error_time);
         mTextErrorData = (TextView) findViewById(R.id.text_error_data);
 
+        ArrayList errorList = SingleBoardConnectionService.mErrors;
+        SingleBoardDataEvent lastError = (SingleBoardDataEvent) errorList.get(errorList.size() - 1);
+        mTextErrorName.setText(lastError.name);
+        mTextErrorTime.setText(lastError.timeStamp);
+        mTextErrorData.setText(lastError.data);
+
         SingleBoardConnectionService.getEventBus().register(this);
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-    @Override
-    public void onBackPressed() {
-        moveTaskToBack(true);
     }
 
     @Subscribe
