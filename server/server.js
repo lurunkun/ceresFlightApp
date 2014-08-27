@@ -5,6 +5,7 @@ var sleep = require('sleep');
 var app = express();
 var STATUS_FILE_PATH = __dirname+'/data/status.json';
 var opt = {  stale : 10, pollPeriod : 10, retries : 0 };
+var restarted = false;
 // var testWriter = require('./testWriter.js');
 
 
@@ -15,7 +16,12 @@ app.get('/', function(req, res) {
     console.log('sent');
     fs.writeFileSync(STATUS_FILE_PATH, '[]');
     lockFile.unlockSync('stats.lock');
-    res.json(JSON.parse(data));
+    data = JSON.parse(data);
+    if (restarted === true) {
+      data.status = 'Restarted';
+      restarted = false;
+    }
+    res.json(data);
   } catch (e) {
     console.log(e);
     res.json([]);
@@ -35,6 +41,7 @@ app.get('/reboot', function(req, res) {
   } catch(e) {
     console.log(e);
   } finally {
+    restarted = true;
     return;
   }
 });
