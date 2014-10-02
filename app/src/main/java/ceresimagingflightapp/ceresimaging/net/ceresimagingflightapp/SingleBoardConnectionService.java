@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
     private static final int UPDATE_INTERVAL = 50;
@@ -31,7 +30,7 @@ public class SingleBoardConnectionService extends Service {
     // list of errors received
     static ArrayList<SingleBoardDataEvent> mErrors = new ArrayList<SingleBoardDataEvent>();
 
-    private static TimerTask mRetrieveDataTask;
+    private static Thread mSocketThread;
 
     public SingleBoardConnectionService() {
     }
@@ -49,6 +48,7 @@ public class SingleBoardConnectionService extends Service {
 
     @Override
     public void onDestroy() {
+        mSocketThread.interrupt();
         super.onDestroy();
         Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
     }
@@ -70,16 +70,18 @@ public class SingleBoardConnectionService extends Service {
     }
 
     private void retrieveDataFromSBC() {
-        new Thread() {
+        mSocketThread = new Thread() {
             public void run() {
-                while(true) {
+                while(!this.isInterrupted()) {
                     try {
                         Socket socket = new Socket(SBC_URL, SBC_PORT);
+                        mBus.post(new SingleBoardConnectionEvent(true));
                         BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         StringBuilder contentString = new StringBuilder();
                         String line;
                         while ((line = read.readLine()) != null) {
                             contentString.append(line);
+                            Log.e(TAG, line);
                         }
                         // parse the string retrieved to JSON Array
                         try {
@@ -102,8 +104,8 @@ public class SingleBoardConnectionService extends Service {
                         } catch (JSONException e) {
                             Log.e(TAG, "JSON Status Parse Failed.", e);
                         }
-                        break;
                     } catch (IOException e) {
+                        mBus.post(new SingleBoardConnectionEvent(false));
                         Log.w(TAG, "LOG Warning connecting to SBC");
                         e.printStackTrace();
                         try {
@@ -115,6 +117,7 @@ public class SingleBoardConnectionService extends Service {
                     }
                 }
             }
-        }.start();
+        };
+        mSocketThread.start();
     }
 }
