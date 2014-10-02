@@ -10,11 +10,7 @@ import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,14 +20,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SingleBoardConnectionService extends Service {
-    private static final int UPDATE_INTERVAL = 1000;
-    private static final String SBC_URL = "192.168.1.6:";
+    private static final int UPDATE_INTERVAL = 50;
+    private static final String SBC_URL = "192.168.1.11";
     private static final int SBC_PORT = 9000;
     private static final String TAG = "Ceres SBC Connection Service";
     private static Timer timer = new Timer();
@@ -85,10 +82,12 @@ public class SingleBoardConnectionService extends Service {
             @Override
             public void run() {
                 try {
-                    HttpClient httpClient = new DefaultHttpClient();
-                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT + "/reboot"));
-                    content = response.getEntity().getContent();
-                    BufferedReader read = new BufferedReader(new InputStreamReader(content));
+//                    HttpClient httpClient = new DefaultHttpClient();
+//                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT + "/reboot"));
+//                    content = response.getEntity().getContent();
+//                    BufferedReader read = new BufferedReader(new InputStreamReader(content));
+                    Socket socket = new Socket(SBC_URL, SBC_PORT);
+                    BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     StringBuilder contentString = new StringBuilder();
                     String line;
                     while ((line = read.readLine()) != null) {
@@ -96,8 +95,10 @@ public class SingleBoardConnectionService extends Service {
                     }
                     String responseString = contentString.toString();
                     if (responseString.equals("restarting")) {
+                        // if restarting
                         mBus.post(new SingleBoardConnectionEvent(false, true));
                     } else {
+                        // if not restarting
                         mBus.post(new SingleBoardConnectionEvent(false, false));
                     }
                     read.close();
@@ -133,17 +134,19 @@ public class SingleBoardConnectionService extends Service {
             @TargetApi(Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
-                InputStream content;
+//                InputStream content;
                 try {
-                    HttpClient httpClient = new DefaultHttpClient();
-                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT));
-                    content = response.getEntity().getContent();
-                    BufferedReader read = new BufferedReader(new InputStreamReader(content));
+//                    HttpClient httpClient = new DefaultHttpClient();
+//                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT));
+//                    content = response.getEntity().getContent();
+                    Socket socket = new Socket(SBC_URL, SBC_PORT);
+                    BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     StringBuilder contentString = new StringBuilder();
                     String line;
                     while ((line = read.readLine()) != null) {
                         contentString.append(line);
                     }
+                    Log.e(TAG, contentString.toString());
                     // parse the string retrieved to JSON Array
                     try {
                         JSONArray statusArray = new JSONArray(contentString.toString());
@@ -181,7 +184,7 @@ public class SingleBoardConnectionService extends Service {
                     SingleBoardConnectionService.inError = false;
                     SingleBoardConnectionService.inWarning = false;
                 } catch (IOException e) {
-                    Log.e(TAG, "LOG Error connecting to service", e);
+                    Log.w(TAG, "LOG Error connecting to service", e);
                     mBus.post(new SingleBoardConnectionEvent(false));
                     SingleBoardConnectionService.inError = false;
                     SingleBoardConnectionService.inWarning = false;
