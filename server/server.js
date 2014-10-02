@@ -41,7 +41,7 @@ function writeStatus(sock) {
     } catch (e) {
       console.log(e);
     }
-  }, 1000);
+  }, 5);
 }
 
 function writeStats(type, sock) {
