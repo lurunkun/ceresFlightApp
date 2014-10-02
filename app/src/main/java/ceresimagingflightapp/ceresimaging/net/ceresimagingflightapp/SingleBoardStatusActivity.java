@@ -57,7 +57,7 @@ public class SingleBoardStatusActivity extends Activity {
     }
 
     public void onClickRestartButton(View view) {
-        SingleBoardConnectionService.requestRestartSBC();
+//        SingleBoardConnectionService.requestRestartSBC();
     }
 
     @Subscribe

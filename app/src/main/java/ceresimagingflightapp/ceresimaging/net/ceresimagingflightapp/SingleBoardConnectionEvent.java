@@ -12,9 +12,4 @@ public class SingleBoardConnectionEvent {
         this.connected = status;
         this.restarting = false;
     }
-    SingleBoardConnectionEvent(boolean status, boolean restarting) {
-        this.connected = status;
-        this.restarting = restarting;
-    }
-
 }

@@ -17,7 +17,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.Socket;
@@ -75,45 +74,6 @@ public class SingleBoardConnectionService extends Service {
         super.onCreate();
     }
 
-    public static void requestRestartSBC() {
-        pauseRetrieveDataTask();
-        Thread thread = new Thread(new Runnable() {
-            InputStream content;
-            @Override
-            public void run() {
-                try {
-//                    HttpClient httpClient = new DefaultHttpClient();
-//                    HttpResponse response = httpClient.execute(new HttpGet("http://" + SBC_URL + SBC_PORT + "/reboot"));
-//                    content = response.getEntity().getContent();
-//                    BufferedReader read = new BufferedReader(new InputStreamReader(content));
-                    Socket socket = new Socket(SBC_URL, SBC_PORT);
-                    BufferedReader read = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    StringBuilder contentString = new StringBuilder();
-                    String line;
-                    while ((line = read.readLine()) != null) {
-                        contentString.append(line);
-                    }
-                    String responseString = contentString.toString();
-                    if (responseString.equals("restarting")) {
-                        // if restarting
-                        mBus.post(new SingleBoardConnectionEvent(false, true));
-                    } else {
-                        // if not restarting
-                        mBus.post(new SingleBoardConnectionEvent(false, false));
-                    }
-                    read.close();
-                    resumeRetrieveDataTask();
-                } catch (MalformedURLException e) {
-
-                } catch (IOException e) {
-
-                }
-
-            }
-        });
-        thread.start();
-    }
-
     public static void clearErrors() {
         mErrors.clear();
         inError = false;
@@ -146,7 +106,6 @@ public class SingleBoardConnectionService extends Service {
                     while ((line = read.readLine()) != null) {
                         contentString.append(line);
                     }
-                    Log.e(TAG, contentString.toString());
                     // parse the string retrieved to JSON Array
                     try {
                         JSONArray statusArray = new JSONArray(contentString.toString());
@@ -195,7 +154,6 @@ public class SingleBoardConnectionService extends Service {
     }
 
     private void retrieveDataFromSBC() {
-//        timer = new Timer();
         SingleBoardConnectionService.timer.scheduleAtFixedRate(mRetrieveDataTask, 0, UPDATE_INTERVAL);
     }
 }
