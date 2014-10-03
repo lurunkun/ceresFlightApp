@@ -3,14 +3,10 @@ package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 
 public class SingleBoardConnectionService extends Service {
@@ -37,15 +33,16 @@ public class SingleBoardConnectionService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        MainActivity.getEventBus().register(this);
         Toast.makeText(this, "service started", Toast.LENGTH_SHORT).show();
         retrieveDataFromSBC();
+        sendDataToSBC();
         return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         mReceiveSocketThread.stopThread();
+        mSendSocketThread.stopThread();
         super.onDestroy();
         Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
     }
@@ -66,19 +63,13 @@ public class SingleBoardConnectionService extends Service {
         inError = false;
     }
 
-    private Socket sendDataToSBC() throws IOException {
+    private void sendDataToSBC() {
         mSendSocketThread =  new SendSocketThread();
         mSendSocketThread.start();
-        return mSendSocketThread.getSocket();
     }
 
     private void retrieveDataFromSBC() {
         mReceiveSocketThread = new ReceiveSocketThread();
         mReceiveSocketThread.start();
-    }
-
-    @Subscribe
-    public void onTabletGPSDataEvent(TabletGPSDataEvent event) {
-        Log.e(TAG, Double.toString(event.location.getLatitude()));
     }
 }

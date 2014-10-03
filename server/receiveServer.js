@@ -17,6 +17,7 @@ server.on('connection', function(sock) {
     sock.remotePort);
 
   sock.on('data', function(data) {
+    console.log(data.toString());
     fs.appendFileSync(__dirname+'/log', data.toString());
   });
 

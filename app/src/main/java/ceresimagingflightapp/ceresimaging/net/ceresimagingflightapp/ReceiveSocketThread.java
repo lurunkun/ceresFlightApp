@@ -62,12 +62,12 @@ public class ReceiveSocketThread extends Thread {
                 }
             } catch (IOException e) {
                 mBus.post(new SingleBoardConnectionEvent(false));
-                Log.w(TAG, "LOG Warning connecting to SBC");
+                Log.w(TAG, "Read thread error connecting to SBC");
                 e.printStackTrace();
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e1) {
-                    Log.e(TAG, "LOG Error socket connect sleep error");
+                    Log.e(TAG, "Error socket connect sleep error");
                     e1.printStackTrace();
                 }
             }

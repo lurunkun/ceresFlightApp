@@ -58,6 +58,7 @@ import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
+import com.squareup.otto.ThreadEnforcer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -92,7 +93,7 @@ public class MainActivity extends Activity implements
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
     private int mScreenWidth;
-    private static Bus mSBCThreadBus = new Bus();
+    private static Bus mSBCThreadBus = new Bus(ThreadEnforcer.ANY);
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
