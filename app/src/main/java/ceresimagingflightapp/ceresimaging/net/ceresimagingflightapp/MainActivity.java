@@ -1191,6 +1191,7 @@ public class MainActivity extends Activity implements
         Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
     }
 
+    // FIXME need background service for location data because if main thread stops the location logging will stop
     @Override
     public void onLocationChanged(Location location) {
         // post location to SBC service
