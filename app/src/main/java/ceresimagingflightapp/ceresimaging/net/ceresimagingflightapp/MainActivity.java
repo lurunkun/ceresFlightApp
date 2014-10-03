@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.json.JSONArray;
@@ -91,6 +92,7 @@ public class MainActivity extends Activity implements
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
     private int mScreenWidth;
+    private static Bus mSBCThreadBus = new Bus();
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -211,6 +213,10 @@ public class MainActivity extends Activity implements
             }
         }
         return closestMarker;
+    }
+
+    public static Bus getEventBus() {
+        return mSBCThreadBus;
     }
 
     @Override
@@ -1186,6 +1192,9 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        // post location to SBC service
+        mSBCThreadBus.post(new TabletGPSDataEvent(location));
+
         if (location.getSpeed() < 89.408) {
             TextView textBearing = (TextView) findViewById(R.id.text_bearing);
             textBearing.setText(Float.toString(location.getBearing()));

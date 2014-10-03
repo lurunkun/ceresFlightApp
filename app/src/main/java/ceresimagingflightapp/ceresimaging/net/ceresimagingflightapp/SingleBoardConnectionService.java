@@ -3,9 +3,11 @@ package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -35,6 +37,7 @@ public class SingleBoardConnectionService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        MainActivity.getEventBus().register(this);
         Toast.makeText(this, "service started", Toast.LENGTH_SHORT).show();
         retrieveDataFromSBC();
         return Service.START_STICKY;
@@ -72,5 +75,10 @@ public class SingleBoardConnectionService extends Service {
     private void retrieveDataFromSBC() {
         mReceiveSocketThread = new ReceiveSocketThread();
         mReceiveSocketThread.start();
+    }
+
+    @Subscribe
+    public void onTabletGPSDataEvent(TabletGPSDataEvent event) {
+        Log.e(TAG, Double.toString(event.location.getLatitude()));
     }
 }
