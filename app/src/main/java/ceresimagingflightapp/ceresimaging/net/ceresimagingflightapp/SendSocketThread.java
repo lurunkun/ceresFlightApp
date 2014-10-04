@@ -28,20 +28,28 @@ public class SendSocketThread extends Thread{
     @Override
     public void run() {
         MainActivity.getEventBus().register(this);
-        while (!this.stopped && mSocket == null) {
-            try {
-                mSocket = new Socket(SingleBoardConnectionService.SBC_URL, SingleBoardConnectionService.SEND_PORT);
-            } catch (IOException e) {
-                Log.w(TAG, "Warning write thread error connecting to SBC");
-                e.printStackTrace();
+        try {
+            while (!this.stopped && (mSocket == null || mSocket.getInputStream().read() == -1)) {
+                if (mSocket != null) {
+                    mSocket.close();
+                }
                 try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e1) {
-                    Log.e(TAG, "Error socket connect sleep error");
-                    e1.printStackTrace();
+                    mSocket = new Socket(SingleBoardConnectionService.SBC_URL, SingleBoardConnectionService.SEND_PORT);
+                } catch (IOException e) {
+                    Log.w(TAG, "Warning write thread error connecting to SBC");
+                    e.printStackTrace();
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e1) {
+                        Log.e(TAG, "Error socket connect sleep error");
+                        e1.printStackTrace();
+                    }
+                } finally {
                 }
             }
-
+        } catch (IOException e) {
+            Log.w(TAG, "sending socket read error");
+            e.printStackTrace();
         }
     }
 
@@ -50,9 +58,6 @@ public class SendSocketThread extends Thread{
         String time = Long.toString(event.location.getTime());
         String lat = Double.toString(event.location.getLatitude());
         String lng = Double.toString(event.location.getLongitude());
-        Log.e(TAG, time);
-        Log.e(TAG, lat);
-        Log.e(TAG, lng);
         if (mSocket != null) {
             try {
                 PrintWriter out = new PrintWriter(mSocket.getOutputStream());
