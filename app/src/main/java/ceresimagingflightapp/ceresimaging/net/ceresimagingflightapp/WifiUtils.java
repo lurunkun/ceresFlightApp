@@ -14,7 +14,10 @@ import java.util.List;
  */
 public class WifiUtils {
 
-    private static WifiInfo getWifiInfo(Context context) {
+    private static final String SBC_SSID = "CeresSBC";
+    private static final String SBC_PW = "12345";
+
+    public static WifiInfo getWifiInfo(Context context) {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         return wifiMgr.getConnectionInfo();
     }
@@ -22,18 +25,18 @@ public class WifiUtils {
     // returns IP of current wifi connection
     @SuppressWarnings("depreciation")
     public static String getConnectedIp(Context context) {
-        int ip = WifiUtils.getWifiInfo(context).getIpAddress();
+        int ip = getWifiInfo(context).getIpAddress();
         return Formatter.formatIpAddress(ip);
     }
 
     // returns SSID of current wifi connection
     public static String getSBCHostName(Context context) {
-        String ssid = WifiUtils.getWifiInfo(context).getSSID();
+        String ssid = getWifiInfo(context).getSSID();
         return ssid;
     }
 
-    // connects to a wifi host by SSID and pw
-    public static void ConnectBySSID(Context context, String SSID, String pw) {
+    // configure a wifi host by SSID and pw
+    public static void connectBySSID(Context context, String SSID, String pw) {
         // SSID and Password must be in quotes
         SSID = "\"" + SSID + "\"";
         WifiConfiguration conf = new WifiConfiguration();
@@ -41,13 +44,38 @@ public class WifiUtils {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         wifiMgr.addNetwork(conf);
 
+//        List<WifiConfiguration> list = wifiMgr.getConfiguredNetworks();
+//        for (WifiConfiguration i : list) {
+//            if (i.SSID != null && i.SSID.equals("\"" + SSID + "\"")) {
+//                wifiMgr.disconnect();
+//                wifiMgr.enableNetwork(i.networkId, true);
+//                wifiMgr.reconnect();
+//                break;
+//            }
+//        }
+    }
+
+    // returns true if there is a SBC wifi connection that is configured
+    public static boolean isSBCWifiConfigured(Context context) {
+        WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         List<WifiConfiguration> list = wifiMgr.getConfiguredNetworks();
-        for( WifiConfiguration i : list ) {
-            if(i.SSID != null && i.SSID.equals("\"" + SSID + "\"")) {
+        for (WifiConfiguration i : list) {
+            if (i.SSID != null && i.SSID.substring(0, SBC_SSID.length()).equals("\"" + SBC_SSID + "\"")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Connects to the first SBC wifi that is configured
+    public static void connectToSBCWifi(Context context) {
+        WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+        List<WifiConfiguration> list = wifiMgr.getConfiguredNetworks();
+        for (WifiConfiguration i : list) {
+            if (i.SSID != null && i.SSID.substring(0, SBC_SSID.length()).equals("\"" + SBC_SSID + "\"")) {
                 wifiMgr.disconnect();
                 wifiMgr.enableNetwork(i.networkId, true);
                 wifiMgr.reconnect();
-                break;
             }
         }
     }
