@@ -102,7 +102,7 @@ public class MainActivity extends Activity implements
     private Polyline mPathLine;
     private Polygon mCurrentFieldPolygon = null;
     private int mPathDir = 1;
-    private int mShiftDist = (int) Math.round(MainActivity.toMeters(700));
+    private int mShiftDist = (int) Math.round(GeoUtils.toMeters(700));
     private int mPassNumber;
     private List<Marker> mFlightMarkers = new ArrayList<Marker>();
     private List<Polygon> mFlightPolygons = new ArrayList<Polygon>();
@@ -151,63 +151,6 @@ public class MainActivity extends Activity implements
     private View mDistLineIndicatorLeftStatic;
     private View mDistLineIndicatorRightStatic;
 
-    public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
-        final double R = 6371009;
-        LatLng current = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        double currentHeading = currentLocation.getBearing();
-        double distAC = SphericalUtil.computeDistanceBetween(a, current);
-        double bearingAC = SphericalUtil.computeHeading(a, current);
-        double bearingAB = SphericalUtil.computeHeading(a, b);
-        double bearingRadAC = Math.toRadians(bearingAC);
-        double bearingRadAB = Math.toRadians(bearingAB);
-        double trackDist = Math.asin(Math.sin(distAC/R) * Math.sin(bearingRadAC - bearingRadAB)) * R;
-        if (bearingAB < 0) {
-            bearingAB += 360;
-        }
-        double angleDiff = Math.abs(currentHeading - bearingAB) % 360;
-        angleDiff = angleDiff > 180 ? 360 - angleDiff : angleDiff;
-        if (angleDiff > 90) {
-            trackDist = trackDist * -1;
-        }
-        return trackDist;
-    }
-
-    public static double toFeet(double distance) {
-        return distance * 3.28084;
-    }
-    public static double toMeters(double distance) {
-        return distance * 0.3048;
-    }
-    public static double toMiles(double distance) { return distance / 1609.34; }
-    public static LatLng getPolyCenter(List<LatLng> polygon) {
-        double latitude = 0;
-        double longitude = 0;
-        int totalPoints = polygon.size();
-        for (int i = 0; i < polygon.size(); i++ ) {
-            latitude  += polygon.get(i).latitude;
-            longitude += polygon.get(i).longitude;
-        }
-        return new LatLng(latitude/totalPoints, longitude/totalPoints);
-    }
-    public static Marker getPolygonMarker(Polygon polygon, List<Marker> markers) {
-        List<LatLng> points = polygon.getPoints();
-        LatLng center = getPolyCenter(points);
-        double shortestDist = 100000;
-        Marker closestMarker = null;
-        for (Marker marker : markers) {
-            if (closestMarker == null) {
-                shortestDist = Math.abs(SphericalUtil.computeDistanceBetween(marker.getPosition(), center));
-                closestMarker = marker;
-            } else {
-                double dist = Math.abs(SphericalUtil.computeDistanceBetween(marker.getPosition(), center));
-                if (dist < shortestDist) {
-                    shortestDist = dist;
-                    closestMarker = marker;
-                }
-            }
-        }
-        return closestMarker;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,7 +187,7 @@ public class MainActivity extends Activity implements
         mSeekBarSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if (b) {
-                    int meters = (int) Math.round(MainActivity.toMeters(i * 50.0));
+                    int meters = (int) Math.round(GeoUtils.toMeters(i * 50.0));
                     mButtonToggleSeekBar.setText(Integer.toString(i*50));
                     mShiftDist = meters;
                 }
@@ -425,10 +368,10 @@ public class MainActivity extends Activity implements
     public void displayTrackDist(double trackDist) {
         if (trackDist > 0) {
             mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'L');
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist))))+'L');
         } else {
             mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(MainActivity.toFeet(trackDist))))+'R');
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist))))+'R');
         }
     }
 
@@ -436,7 +379,7 @@ public class MainActivity extends Activity implements
         getScreenSize();
         double MAX_WIDTH = mScreenWidth/2 - 10;
 
-        double dist = MainActivity.toFeet(trackDist);
+        double dist = GeoUtils.toFeet(trackDist);
         String green = "#298200";
         String red = "#f20000";
         ViewGroup.LayoutParams layoutLeft =  mDistLineIndicatorLeft.getLayoutParams();
@@ -473,7 +416,7 @@ public class MainActivity extends Activity implements
     // draw flightline to center of edge
     private void drawFlightLineToEdge() {
         if (mCurrentFieldPolygon != null && mFlightMarkers != null) {
-            Marker marker = MainActivity.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
+            Marker marker = GeoUtils.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
             if (mFlightMarkers.contains(marker)) {
                 double distanceBetween = SphericalUtil.computeDistanceBetween(mInterpA, mInterpB);
                 double headingBetween = SphericalUtil.computeHeading(mInterpA, mInterpB);
@@ -888,7 +831,7 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            double trackDist = GeoUtils.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
             displayTrackDist(trackDist);
             mPassNumber--;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
@@ -918,7 +861,7 @@ public class MainActivity extends Activity implements
             mPathLine.setPoints(newPoints);
             mMarkerA.setPosition(mInterpA);
             mMarkerB.setPosition(mInterpB);
-            double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+            double trackDist = GeoUtils.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
             displayTrackDist(trackDist);
             mPassNumber++;
             mTextPassNumber.setText("Pass #" + Integer.toString(mPassNumber));
@@ -1102,7 +1045,7 @@ public class MainActivity extends Activity implements
             // adjust seek bar
             String[] description = marker.getSnippet().split(", ");
             double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
-            mShiftDist = (int) Math.round(MainActivity.toMeters(distanceBetweenPass));
+            mShiftDist = (int) Math.round(GeoUtils.toMeters(distanceBetweenPass));
             int dist = (int) Math.round((distanceBetweenPass/1000)*20);
             mSeekBarSlider.setProgress(dist);
             mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
@@ -1122,7 +1065,7 @@ public class MainActivity extends Activity implements
                 LatLng pointB = null;
                 double minDist = 1000;
                 for (int i=0; i < points.size() - 1; i++){
-                    double dist = Math.abs(MainActivity.getTrackDist(points.get(i), points.get(i + 1), clickLocation));
+                    double dist = Math.abs(GeoUtils.getTrackDist(points.get(i), points.get(i + 1), clickLocation));
                     List<LatLng> line = new ArrayList<LatLng>();
                     line.add(points.get(i));
                     line.add(points.get(i+1));
@@ -1132,7 +1075,7 @@ public class MainActivity extends Activity implements
                         pointB = points.get(i+1);
                     }
                 }
-                double dist = Math.abs(MainActivity.getTrackDist(points.get(0), points.get(points.size() - 1), clickLocation));
+                double dist = Math.abs(GeoUtils.getTrackDist(points.get(0), points.get(points.size() - 1), clickLocation));
                 List<LatLng> line = new ArrayList<LatLng>();
                 line.add(points.get(0));
                 line.add(points.get(points.size()-1));
@@ -1156,22 +1099,22 @@ public class MainActivity extends Activity implements
                         LatLng newPointA = SphericalUtil.computeOffset(mInterpA, mShiftDist, heading);
                         LatLng newPointB = SphericalUtil.computeOffset(mInterpB, mShiftDist, heading);
                         // check dist to center of polygon
-                        LatLng polygonCenter = MainActivity.getPolyCenter(points);
+                        LatLng polygonCenter = GeoUtils.getPolyCenter(points);
 
                         Location center = new Location("");
                         center.setLongitude(polygonCenter.longitude);
                         center.setLatitude(polygonCenter.latitude);
-                        double centerToPoint = MainActivity.getTrackDist(pointA, pointB, center);
-                        double centerToNewPoint = MainActivity.getTrackDist(newPointA, newPointB, center);
+                        double centerToPoint = GeoUtils.getTrackDist(pointA, pointB, center);
+                        double centerToNewPoint = GeoUtils.getTrackDist(newPointA, newPointB, center);
                         if (Math.abs(centerToNewPoint) > Math.abs(centerToPoint)) {
                             mPathDir = mPathDir * -1;
                         }
 
                         // adjust seek bar
-                        Marker marker = MainActivity.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
+                        Marker marker = GeoUtils.getPolygonMarker(mCurrentFieldPolygon, mFlightMarkers);
                         String[] description = marker.getSnippet().split(", ");
                         double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
-                        mShiftDist = (int) Math.round(MainActivity.toMeters(distanceBetweenPass));
+                        mShiftDist = (int) Math.round(GeoUtils.toMeters(distanceBetweenPass));
                         int shiftDist = (int) Math.round((distanceBetweenPass/1000)*20);
                         mSeekBarSlider.setProgress(shiftDist);
                         mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
@@ -1249,7 +1192,7 @@ public class MainActivity extends Activity implements
                 mTextCurrentLocation.setText((double)Math.round(lat*1000)/1000 + ", " + (double)Math.round(lng*1000)/1000);
             }
             if (mInterpA != null && mInterpB != null && mCurrentLatLng != null) {
-                double trackDist = MainActivity.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
+                double trackDist = GeoUtils.getTrackDist(mInterpA, mInterpB, mLocationCurrent);
                 displayTrackDist(trackDist);
                 adjustLineIndicator(trackDist);
             }
@@ -1288,7 +1231,7 @@ public class MainActivity extends Activity implements
                 String[] description = mDestinationMarker.getSnippet().split(", ");
                 String altitude = description[0].substring(5);
                 String distanceBetweenPass = description[1].substring(23);
-                dist = MainActivity.toMiles(dist);
+                dist = GeoUtils.toMiles(dist);
                 mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "miles");
                 mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
