@@ -27,7 +27,7 @@ public class SendSocketThread extends Thread{
 
     @Override
     public void run() {
-        MainActivity.getEventBus().register(this);
+        GpsService.getSBCThreadBus().register(this);
         try {
             while (!this.stopped && (mSocket == null || mSocket.getInputStream().read() == -1)) {
                 if (mSocket != null) {

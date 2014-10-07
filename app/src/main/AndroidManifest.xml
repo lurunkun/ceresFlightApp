@@ -51,6 +51,12 @@ android:versionName="1.0" >
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.MainActivity" />
         </activity>
+
+        <service
+            android:name=".GpsService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

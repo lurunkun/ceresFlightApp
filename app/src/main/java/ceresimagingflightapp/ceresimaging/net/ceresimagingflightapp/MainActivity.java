@@ -37,11 +37,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -56,9 +52,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
-import com.squareup.otto.ThreadEnforcer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,22 +72,21 @@ import java.util.concurrent.TimeUnit;
 import static android.content.DialogInterface.OnClickListener;
 
 public class MainActivity extends Activity implements
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
-        LocationListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
+        GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "FlightApp";
     private static final String SERVICE_URL = "http://huaruiwu.github.io/ceresGeoApp/flights/";
     private static final int REQUEST_CODE_RECOVER_PLAY_SERVICES = 1001;
-    private static final int UPDATE_INTERVAL = 50;
-    private static final int FASTEST_INTERVAL = 50;
+    // moved to GPS Service
+//    private static final int UPDATE_INTERVAL = 50;
+//    private static final int FASTEST_INTERVAL = 50;
     private static final boolean IS_DEV = false;
     private static final int mREAD_TIMEOUT = 10000;
     private GoogleMap mMap;
-    LocationRequest mLocationRequest;
-    LocationClient mLocationClient;
+    // moved to GPS Service
+//    LocationRequest mLocationRequest;
+//    LocationClient mLocationClient;
     private int mScreenWidth;
-    private static Bus mSBCThreadBus = new Bus(ThreadEnforcer.ANY);
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -216,10 +209,6 @@ public class MainActivity extends Activity implements
         return closestMarker;
     }
 
-    public static Bus getEventBus() {
-        return mSBCThreadBus;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -322,10 +311,14 @@ public class MainActivity extends Activity implements
             ToggleButton toggleRotation = (ToggleButton) findViewById(R.id.toggle_rotation);
             toggleRotation.setVisibility(View.INVISIBLE);
         }
-        initGeolocation();
+        // moved to gps service
+//        initGeolocation();
+
         // start SBC service and register event bus
         startSBCService();
+        startGPSService();
         SingleBoardConnectionService.getEventBus().register(this);
+        GpsService.getMainThreadBus().register(this);
         try {
             loadFlightPlan();
         } catch (JSONException e) {
@@ -341,15 +334,17 @@ public class MainActivity extends Activity implements
     @Override
     protected void onStart() {
         super.onStart();
-        mLocationClient.connect();
+        // moved to GPS service
+//        mLocationClient.connect();
     }
 
     @Override
     protected void onStop() {
-        if (mLocationClient.isConnected()) {
-            mLocationClient.removeLocationUpdates(this);
-        }
-        mLocationClient.disconnect();
+        // moved to GPS service
+//        if (mLocationClient.isConnected()) {
+//            mLocationClient.removeLocationUpdates(this);
+//        }
+//        mLocationClient.disconnect();
         super.onStop();
     }
 
@@ -362,6 +357,7 @@ public class MainActivity extends Activity implements
     @Override
     protected void onDestroy() {
         stopSBCService();
+        stopGPSService();
         super.onDestroy();
     }
 
@@ -410,13 +406,14 @@ public class MainActivity extends Activity implements
                 REQUEST_CODE_RECOVER_PLAY_SERVICES).show();
     }
 
-    private void initGeolocation() {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        mLocationClient = new LocationClient(this, this, this);
-    }
+    // moved to gps service
+//    private void initGeolocation() {
+//        mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        mLocationRequest.setInterval(UPDATE_INTERVAL);
+//        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+//        mLocationClient = new LocationClient(this, this, this);
+//    }
 
     private void getScreenSize() {
         Display display = getWindowManager().getDefaultDisplay();
@@ -632,6 +629,16 @@ public class MainActivity extends Activity implements
         this.stopService(i);
     }
 
+    public void startGPSService() {
+        Intent i = new Intent(getBaseContext(), GpsService.class);
+        this.startService(i);
+    }
+
+    public void stopGPSService() {
+        Intent i = new Intent(getBaseContext(), GpsService.class);
+        this.stopService(i);
+    }
+
 
     public void onToggleCurrentLocation(View view) {
         if (mMap != null) {
@@ -790,7 +797,8 @@ public class MainActivity extends Activity implements
                 mLocationA.setLongitude(point.longitude);
                 mLocationA.setLatitude(point.latitude);
             } else {
-                mLocationA = mLocationClient.getLastLocation();
+//                mLocationA = mLocationClient.getLastLocation();
+                mLocationA = mLocationCurrent;
             }
             mPassNumber = 0;
             view.setBackgroundColor(Color.RED);
@@ -815,7 +823,8 @@ public class MainActivity extends Activity implements
                     mLocationB.setLongitude(point.longitude);
                     mLocationB.setLatitude(point.latitude);
                 } else {
-                    mLocationB = mLocationClient.getLastLocation();
+//                    mLocationB = mLocationClient.getLastLocation();
+                    mLocationB = mLocationCurrent;
                 }
                 view.setBackgroundColor(Color.RED);
                 LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
@@ -1176,26 +1185,28 @@ public class MainActivity extends Activity implements
         }
     }
 
-    @Override
-    public void onConnected(Bundle dataBundle) {
-        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-        mLocationClient.requestLocationUpdates(mLocationRequest, this);
-    }
+    // moved to GPS service
+//    @Override
+//    public void onConnected(Bundle dataBundle) {
+//        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+//        mLocationClient.requestLocationUpdates(mLocationRequest, this);
+//    }
 
-    @Override
-    public void onDisconnected() {
-        Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
-    }
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
-    }
+    // moved to GPS service
+//    @Override
+//    public void onDisconnected() {
+//        Toast.makeText(this, "Disconnected", Toast.LENGTH_SHORT).show();
+//    }
 
-    // FIXME need background service for location data because if main thread stops the location logging will stop
-    @Override
-    public void onLocationChanged(Location location) {
-        // post location to SBC service
-        mSBCThreadBus.post(new TabletGPSDataEvent(location));
+    // moved GPS service
+//    @Override
+//    public void onConnectionFailed(ConnectionResult result) {
+//        Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
+//    }
+
+    @Subscribe
+    public void onGPSDataEvent(TabletGPSDataEvent event) {
+        Location location = event.location;
 
         if (location.getSpeed() < 89.408) {
             TextView textBearing = (TextView) findViewById(R.id.text_bearing);
