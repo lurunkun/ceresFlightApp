@@ -50,10 +50,11 @@ function writeStats(type, sock) {
   status = JSON.parse(status);
   data = JSON.parse(data);
   data.timeStamp = new Date().toTimeString() + " ms: " + new Date().getMilliseconds();
-  console.log(data);
+  // console.log(data);
   status.push(data);
   sock.write(JSON.stringify(status)+'\n');
-  console.log('write dummy ' + type);
+  console.log(JSON.stringify(status)+'\n');
+  // console.log('write dummy ' + type);
 }
 
 // app.get('/', function(req, res) {
