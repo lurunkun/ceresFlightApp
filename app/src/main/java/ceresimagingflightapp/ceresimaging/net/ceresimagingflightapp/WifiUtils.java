@@ -19,16 +19,20 @@ public class WifiUtils {
         return wifiMgr.getConnectionInfo();
     }
 
-    public static String getSBCIp(Context context) {
+    // returns IP of current wifi connection
+    @SuppressWarnings("depreciation")
+    public static String getConnectedIp(Context context) {
         int ip = WifiUtils.getWifiInfo(context).getIpAddress();
         return Formatter.formatIpAddress(ip);
     }
 
+    // returns SSID of current wifi connection
     public static String getSBCHostName(Context context) {
         String ssid = WifiUtils.getWifiInfo(context).getSSID();
         return ssid;
     }
 
+    // connects to a wifi host by SSID and pw
     public static void ConnectBySSID(Context context, String SSID, String pw) {
         // SSID and Password must be in quotes
         SSID = "\"" + SSID + "\"";

@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class GeoUtils {
 
+    // returns distance between currentLocation and line(a, b)
     public static double getTrackDist(LatLng a, LatLng b, Location currentLocation) {
         final double R = 6371009;
         LatLng current = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -35,13 +36,18 @@ public class GeoUtils {
         return trackDist;
     }
 
+    // meters to feet
     public static double toFeet(double distance) {
         return distance * 3.28084;
     }
+    // feet to meters
     public static double toMeters(double distance) {
         return distance * 0.3048;
     }
+    // meters to miles
     public static double toMiles(double distance) { return distance / 1609.34; }
+
+    // returns the center LatLng of polygon
     public static LatLng getPolyCenter(List<LatLng> polygon) {
         double latitude = 0;
         double longitude = 0;
@@ -52,6 +58,8 @@ public class GeoUtils {
         }
         return new LatLng(latitude/totalPoints, longitude/totalPoints);
     }
+
+    // returns the marker that is inside polygon
     public static Marker getPolygonMarker(Polygon polygon, List<Marker> markers) {
         List<LatLng> points = polygon.getPoints();
         LatLng center = getPolyCenter(points);
