@@ -35,24 +35,21 @@ public class WifiUtils {
         return ssid;
     }
 
+    // connect using a configuration
+    public static void connectToConfiguration(WifiManager wifiMgr, WifiConfiguration conf) {
+        wifiMgr.disconnect();
+        wifiMgr.enableNetwork(conf.networkId, true);
+        wifiMgr.reconnect();
+    }
+
     // configure a wifi host by SSID and pw
-    public static void connectBySSID(Context context, String SSID, String pw) {
+    public static void configureConnection(Context context, String SSID, String pw) {
         // SSID and Password must be in quotes
         SSID = "\"" + SSID + "\"";
         WifiConfiguration conf = new WifiConfiguration();
         conf.preSharedKey = "\"" + pw + "\"";
         WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         wifiMgr.addNetwork(conf);
-
-//        List<WifiConfiguration> list = wifiMgr.getConfiguredNetworks();
-//        for (WifiConfiguration i : list) {
-//            if (i.SSID != null && i.SSID.equals("\"" + SSID + "\"")) {
-//                wifiMgr.disconnect();
-//                wifiMgr.enableNetwork(i.networkId, true);
-//                wifiMgr.reconnect();
-//                break;
-//            }
-//        }
     }
 
     // returns true if there is a SBC wifi connection that is configured
@@ -68,14 +65,12 @@ public class WifiUtils {
     }
 
     // Connects to the first SBC wifi that is configured
-    public static void connectToSBCWifi(Context context) {
+    public static void connectToFirstSBC(Context context) {
         WifiManager wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         List<WifiConfiguration> list = wifiMgr.getConfiguredNetworks();
         for (WifiConfiguration i : list) {
             if (i.SSID != null && i.SSID.substring(0, SBC_SSID.length()).equals("\"" + SBC_SSID + "\"")) {
-                wifiMgr.disconnect();
-                wifiMgr.enableNetwork(i.networkId, true);
-                wifiMgr.reconnect();
+                connectToConfiguration(wifiMgr, i);
             }
         }
     }
