@@ -10,7 +10,7 @@ import com.squareup.otto.Bus;
 import java.util.ArrayList;
 
 public class SingleBoardConnectionService extends Service {
-    public static final String SBC_URL = "192.168.1.165";
+    public static final String SBC_URL = "192.168.1.13";
 //    public static final String SBC_URL = "192.168.1.231";
     public static final int RECEIVE_PORT = 9000;
     public static final int SEND_PORT = 3000;
