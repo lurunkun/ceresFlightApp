@@ -24,7 +24,7 @@ int main() {
             tcp::socket socket(io_service);
             acceptor.accept(socket);
 
-            // read stream
+            // write status string
             while (true) {
                 boost::system::error_code ignored_error;
                 boost::asio::write(socket, boost::asio::buffer("[" + status + "]\n"), ignored_error);
