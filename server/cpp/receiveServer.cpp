@@ -13,18 +13,19 @@ int main() {
             // get connection
             tcp::socket socket(io_service);
             acceptor.accept(socket);
-            boost::system::error_code ignored_error;
 
             // read stream
             boost::asio::streambuf b;
-            boost::asio::read_until(socket, b, "\n");
+            while (true) {
+                boost::asio::read_until(socket, b, "\n");
+                // print string
+                std::istream is(&b);
+                std::string line;
+                std::getline(is, line);
 
-            // print string
-            std::istream is(&b);
-            std::string line;
-            std::getline(is, line);
+                std::cout << line << std::endl;
+            }
 
-            std::cout << line << std::endl;
         }
 
     } catch (std::exception& e) {
