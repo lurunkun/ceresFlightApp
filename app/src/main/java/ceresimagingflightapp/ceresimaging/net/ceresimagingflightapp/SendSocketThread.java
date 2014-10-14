@@ -58,10 +58,11 @@ public class SendSocketThread extends Thread{
         String time = Long.toString(event.location.getTime());
         String lat = Double.toString(event.location.getLatitude());
         String lng = Double.toString(event.location.getLongitude());
+        String alt = Double.toString(event.location.getAltitude());
         if (mSocket != null) {
             try {
                 PrintWriter out = new PrintWriter(mSocket.getOutputStream());
-                out.print(lat + " " + lng + " " + time + "\r\n");
+                out.print(time + "," + lat + "," + lng + "," + alt + "\r\n");
                 out.flush();
             } catch (IOException e) {
                 Log.e(TAG, "Socket write error");
