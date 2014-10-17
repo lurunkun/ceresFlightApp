@@ -135,7 +135,10 @@ public class MainActivity extends Activity implements
     private SeekBar mSeekBarSlider;
     private Button mButtonToggleSeekBar;
     private Button mButtonSBC;
-    private ImageView mImageTrackDistDir;
+    private Button mButtonNext;
+    private Button mButtonPrev;
+    private ImageView mImageTrackDistDirLeft;
+    private ImageView mImageTrackDistDirRight;
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
     private LinearLayout mLayoutArrow;
@@ -167,16 +170,29 @@ public class MainActivity extends Activity implements
         mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
         mTextFieldsRemaining = (TextView) findViewById(R.id.text_fields_remaining);
         mTextDistBetweenPass = (TextView) findViewById(R.id.text_dist_between_pass);
-        mImageTrackDistDir = (ImageView) findViewById(R.id.image_trackDist_direction);
+        mImageTrackDistDirLeft = (ImageView) findViewById(R.id.image_trackDist_left);
+        mImageTrackDistDirRight = (ImageView) findViewById(R.id.image_trackDist_right);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
-        ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
+        ColorFilter filter = new LightingColorFilter(Color.GREEN, Color.GREEN);
         mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
         mDrawableLeft.setColorFilter(filter);
         mDrawableRight.setColorFilter(filter);
-        mImageTrackDistDir.setImageDrawable(mDrawableLeft);
+        mImageTrackDistDirLeft.setImageDrawable(mDrawableLeft);
+        mImageTrackDistDirRight.setImageDrawable(mDrawableRight);
         mButtonToggleSeekBar = (Button) findViewById(R.id.button_toggle_slider);
         mButtonSBC = (Button) findViewById(R.id.button_SBC_status);
+        mButtonNext = (Button) findViewById(R.id.button_next);
+        mButtonPrev = (Button) findViewById(R.id.button_prev);
+
+        // adjust buttons width
+        ViewGroup.LayoutParams layoutButtonNext = mButtonNext.getLayoutParams();
+        ViewGroup.LayoutParams layoutButtonPrev = mButtonPrev.getLayoutParams();
+        getScreenSize();
+        double MAX_WIDTH = mScreenWidth/2 - 10;
+        layoutButtonNext.width = (int) Math.round(MAX_WIDTH/2);
+        layoutButtonPrev.width = (int) Math.round(MAX_WIDTH/2);
+
         mDistLineIndicatorLeft = findViewById(R.id.dist_indicator_line_left);
         mDistLineIndicatorRight = findViewById(R.id.dist_indicator_line_right);
         mDistLineIndicatorLeftStatic = findViewById(R.id.dist_left_indicator_static);
@@ -367,11 +383,15 @@ public class MainActivity extends Activity implements
 
     public void displayTrackDist(double trackDist) {
         if (trackDist > 0) {
-            mImageTrackDistDir.setImageDrawable(mDrawableLeft);
-            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist))))+'L');
+//            mImageTrackDistDirLeft.setImageDrawable(mDrawableLeft);
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist)))) + 'L');
+            mImageTrackDistDirLeft.setVisibility(View.VISIBLE);
+            mImageTrackDistDirRight.setVisibility(View.INVISIBLE);
         } else {
-            mImageTrackDistDir.setImageDrawable(mDrawableRight);
-            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist))))+'R');
+//            mImageTrackDistDirLeft.setImageDrawable(mDrawableRight);
+            mTextTrackDist.setText(Integer.toString((int) Math.abs(Math.round(GeoUtils.toFeet(trackDist)))) + 'R');
+            mImageTrackDistDirRight.setVisibility(View.VISIBLE);
+            mImageTrackDistDirLeft.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -384,8 +404,8 @@ public class MainActivity extends Activity implements
         String red = "#f20000";
         ViewGroup.LayoutParams layoutLeft =  mDistLineIndicatorLeft.getLayoutParams();
         ViewGroup.LayoutParams layoutRight =  mDistLineIndicatorRight.getLayoutParams();
-        ViewGroup.LayoutParams layoutLeftStatic =  mDistLineIndicatorLeftStatic.getLayoutParams();
-        ViewGroup.LayoutParams layoutRightStatic =  mDistLineIndicatorRightStatic.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutLeftStatic =  (ViewGroup.MarginLayoutParams) mDistLineIndicatorLeftStatic.getLayoutParams();
+        ViewGroup.MarginLayoutParams layoutRightStatic =  (ViewGroup.MarginLayoutParams) mDistLineIndicatorRightStatic.getLayoutParams();
         if (dist > 50 || dist < -50) {
             mDistLineIndicatorLeft.setBackgroundColor(Color.parseColor(red));
             mDistLineIndicatorRight.setBackgroundColor(Color.parseColor(red));
@@ -405,8 +425,8 @@ public class MainActivity extends Activity implements
             mDistLineIndicatorRight.setVisibility(View.INVISIBLE);
             mDistLineIndicatorLeft.setVisibility(View.INVISIBLE);
         }
-        layoutLeftStatic.width = (int) Math.round(MAX_WIDTH/2);
-        layoutRightStatic.width = (int) Math.round(MAX_WIDTH/2);
+        layoutLeftStatic.rightMargin = (int) Math.round(MAX_WIDTH/2);
+        layoutRightStatic.leftMargin = (int) Math.round(MAX_WIDTH/2);
         mDistLineIndicatorLeft.setLayoutParams(layoutLeft);
         mDistLineIndicatorRight.setLayoutParams(layoutRight);
         mDistLineIndicatorLeftStatic.setLayoutParams(layoutLeftStatic);
@@ -1007,18 +1027,20 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickLayoutArrow(View view) {
-        int imageHeight = mImageTrackDistDir.getHeight();
-        ViewGroup.LayoutParams imageParams = mImageTrackDistDir.getLayoutParams();
+        int imageHeight = mImageTrackDistDirLeft.getHeight();
+        ViewGroup.LayoutParams imageParams = mImageTrackDistDirLeft.getLayoutParams();
         if (!mIsExpanded) {
             imageParams.width = imageHeight * 2;
             imageParams.height = imageHeight * 2;
-            mImageTrackDistDir.setLayoutParams(imageParams);
+            mImageTrackDistDirLeft.setLayoutParams(imageParams);
+            mImageTrackDistDirRight.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
             mIsExpanded = true;
         } else {
             imageParams.width = imageHeight / 2;
             imageParams.height = imageHeight / 2;
-            mImageTrackDistDir.setLayoutParams(imageParams);
+            mImageTrackDistDirLeft.setLayoutParams(imageParams);
+            mImageTrackDistDirRight.setLayoutParams(imageParams);
             mTextTrackDist.setTextSize(TypedValue.COMPLEX_UNIT_SP, 50);
             mIsExpanded = false;
         }
@@ -1236,10 +1258,10 @@ public class MainActivity extends Activity implements
                 mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
                 mTextFieldAltitude.setText(altitude + "ft ASL");
-                mTextDistBetweenPass.setText(distanceBetweenPass);
+                mTextDistBetweenPass.setText(distanceBetweenPass + "ft");
 
             }
-            mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining));
+            mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining) + " remaining");
         }
     }
 
