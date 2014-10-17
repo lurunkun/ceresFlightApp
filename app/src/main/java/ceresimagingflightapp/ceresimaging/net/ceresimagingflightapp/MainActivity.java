@@ -174,7 +174,7 @@ public class MainActivity extends Activity implements
         mImageTrackDistDirRight = (ImageView) findViewById(R.id.image_trackDist_right);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
-        ColorFilter filter = new LightingColorFilter(Color.GREEN, Color.GREEN);
+        ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
         mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
         mDrawableLeft.setColorFilter(filter);
         mDrawableRight.setColorFilter(filter);
