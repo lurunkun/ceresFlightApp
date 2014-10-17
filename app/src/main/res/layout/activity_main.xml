@@ -24,7 +24,7 @@
                 android:layout_weight="2"
                 android:onClick="onClickButtonPrev"
                 android:layout_gravity="left|right"
-                android:background="#ffffffff" />
+                android:background="#ff9b9b9b" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -50,7 +50,7 @@
                 android:onClick="onClickButtonNext"
                 android:clickable="true"
                 android:layout_gravity="right"
-                android:background="#ffffffff" />
+                android:background="#ff9b9b9b" />
 
             <ImageView
                 android:layout_width="50sp"
@@ -142,7 +142,7 @@
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="130px"
             android:text="@string/button_select_flight"
             android:id="@+id/button_select_flight"
             android:clickable="true"
@@ -188,18 +188,18 @@
         </FrameLayout>
 
         <Button
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:text="+"
             android:id="@+id/zoom_in"
             android:layout_gravity="bottom|right"
-            android:layout_marginBottom="80dp"
+            android:layout_marginBottom="100dp"
             android:textSize="50dp"
             android:onClick="onClickZoomIn" />
 
         <Button
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:text="-"
             android:id="@+id/zoom_out"
             android:layout_gravity="bottom|right"
@@ -226,6 +226,14 @@
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="70px"
+                    android:background="#fff"
+                    android:id="@+id/dist_back_border_static"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_centerHorizontal="true"/>
 
                 <Button
                     style="?android:attr/buttonStyleSmall"
@@ -340,7 +348,7 @@
 
                 <Button
                     android:layout_width="100dp"
-                    android:layout_height="80dp"
+                    android:layout_height="100dp"
                     android:text="Done"
                     android:id="@+id/button_done_field"
                     android:clickable="true"
