@@ -82,6 +82,7 @@ public class MainActivity extends Activity implements
 //    private static final int FASTEST_INTERVAL = 50;
     private static final boolean IS_DEV = false;
     private static final int mREAD_TIMEOUT = 10000;
+    private static HashMap<LatLng, Integer> STARTING_LOCATIONS = new HashMap<LatLng, Integer>();
     private GoogleMap mMap;
     // moved to GPS Service
 //    LocationRequest mLocationRequest;
@@ -184,6 +185,10 @@ public class MainActivity extends Activity implements
         mButtonSBC = (Button) findViewById(R.id.button_SBC_status);
         mButtonNext = (Button) findViewById(R.id.button_next);
         mButtonPrev = (Button) findViewById(R.id.button_prev);
+
+        // starting location zoom fields
+        STARTING_LOCATIONS.put(new LatLng(36.398487, -119.621887), 7);
+        STARTING_LOCATIONS.put(new LatLng(-34.183324, 142.080051), 8);
 
         // adjust buttons width
         ViewGroup.LayoutParams layoutButtonNext = mButtonNext.getLayoutParams();
@@ -1172,6 +1177,27 @@ public class MainActivity extends Activity implements
     @Subscribe
     public void onGPSDataEvent(TabletGPSDataEvent event) {
         Location location = event.location;
+        if (mLocationCurrent == null && location != null) {
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            double shortest = Integer.MAX_VALUE;
+            int zoom = 8;
+            LatLng closest = new LatLng(36.398487, -119.621887);
+            for (LatLng l : STARTING_LOCATIONS.keySet()) {
+                double dist = SphericalUtil.computeDistanceBetween(new LatLng(lat, lng), l);
+                if (dist < shortest) {
+                    shortest = dist;
+                    closest = l;
+                    zoom = STARTING_LOCATIONS.get(l);
+                }
+            }
+            CameraPosition cameraPosition;
+            cameraPosition = new CameraPosition.Builder()
+                    .target(closest)
+                    .zoom(zoom)
+                    .build();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
 
         if (location.getSpeed() < 89.408) {
             TextView textBearing = (TextView) findViewById(R.id.text_bearing);
