@@ -715,7 +715,10 @@ public class MainActivity extends Activity implements
             final Toast toast = Toast.makeText(this, "flight plan loaded", Toast.LENGTH_SHORT);
             final Toast failed_toast = Toast.makeText(this, "connection failed", Toast.LENGTH_SHORT);
             final ListView flightList = new ListView(this);
-            final String[] flightArray = new String[] { "flight1", "flight2" };
+            final String[] flightArray = new String[10];
+            for (int i=0; i < 10; i++) {
+                flightArray[i] = "flight" + (i+1);
+            }
             ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, flightArray);
             flightList.setAdapter(modeAdapter);
 
