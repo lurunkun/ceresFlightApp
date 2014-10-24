@@ -154,6 +154,8 @@ public class MainActivity extends Activity implements
     private View mDistLineIndicatorRight;
     private View mDistLineIndicatorLeftStatic;
     private View mDistLineIndicatorRightStatic;
+    private Bitmap mArrowBm;
+    private Bitmap mArrowBmGreen;
 
 
     @Override
@@ -468,6 +470,7 @@ public class MainActivity extends Activity implements
         }
     }
 
+    // low pass filter
     private Location filterPosition(Location current, Location prev, final double GAMMA) {
         double lat = current.getLatitude();
         double lng = current.getLongitude();
@@ -1222,18 +1225,30 @@ public class MainActivity extends Activity implements
                 location.setBearing((float) SphericalUtil.computeHeading(prev, current));
                 mLocationPrev = mLocationCurrent;
                 if (mCurrentMarker == null) {
+                    // initialize regular current marker arrow
                     Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
-                    Bitmap arrowBm = ((BitmapDrawable) arrow).getBitmap();
-                    arrowBm = arrowBm.createScaledBitmap(arrowBm, arrowBm.getWidth()/3, arrowBm.getHeight()/3, true);
+                    mArrowBm = ((BitmapDrawable) arrow).getBitmap();
+                    mArrowBm = mArrowBm.createScaledBitmap(mArrowBm, mArrowBm.getWidth()/3, mArrowBm.getHeight()/3, true);
+                    // initialize green current marker arrow
+                    Drawable arrowGreen = getResources().getDrawable(R.drawable.location_arrow_green);
+                    mArrowBmGreen = ((BitmapDrawable) arrowGreen).getBitmap();
+                    mArrowBmGreen = mArrowBmGreen.createScaledBitmap(mArrowBmGreen,
+                            mArrowBmGreen.getWidth()/3, mArrowBmGreen.getHeight()/3, true);
                     mCurrentMarker = mMap.addMarker(new MarkerOptions()
                             .position(current)
                             .flat(true)
                             .anchor((float) 0.5, (float) 0.8)
                             .rotation(mLocationCurrent.getBearing())
-                            .icon(BitmapDescriptorFactory.fromBitmap(arrowBm)));
+                            .icon(BitmapDescriptorFactory.fromBitmap(mArrowBm)));
                 } else {
                     mCurrentMarker.setPosition(current);
                     mCurrentMarker.setRotation(mLocationCurrent.getBearing());
+                    // set current marker color
+                    if (GeoUtils.isInPolygons(mFlightPolygons, current)) {
+                        mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBmGreen));
+                    } else {
+                        mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBm));
+                    }
                 }
             }
             double lat = location.getLatitude();

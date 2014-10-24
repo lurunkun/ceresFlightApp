@@ -5,6 +5,7 @@ import android.location.Location;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
+import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 
 import java.util.List;
@@ -57,6 +58,15 @@ public class GeoUtils {
             longitude += polygon.get(i).longitude;
         }
         return new LatLng(latitude/totalPoints, longitude/totalPoints);
+    }
+
+    public static boolean isInPolygons(List<Polygon> polygons, LatLng point) {
+        for (Polygon polygon : polygons) {
+            if (PolyUtil.containsLocation(point, polygon.getPoints(), true)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // returns the marker that is inside polygon
