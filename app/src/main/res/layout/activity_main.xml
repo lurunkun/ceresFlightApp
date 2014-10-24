@@ -473,6 +473,28 @@
                     android:textColor="#ffffff00"
                     android:textSize="28sp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout3" >
+
+                <TextView
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:text="Time of turn:"
+                    android:id="@+id/label_time_of_turn"
+                    android:textColor="#fff"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_time_of_turn"
+                    android:textColor="#ffffff00"
+                    android:textSize="28sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout

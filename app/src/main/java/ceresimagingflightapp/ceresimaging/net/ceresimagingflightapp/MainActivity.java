@@ -111,12 +111,15 @@ public class MainActivity extends Activity implements
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
     private int mNumberOfFieldsRemaining;
+    private long mExitFieldTime = SystemClock.elapsedRealtime();
+    private long mEnterFieldTime = SystemClock.elapsedRealtime();
 
     private boolean mIsFollowing = false;
     private boolean mIsRotating = false;
     private boolean mIsFlightLineVis = true;
     private boolean mIsExpanded = false;
     private boolean mIsLocked = false;
+    private boolean mIsInField = false;
     private double mGamma = 0.98;
     private long mPrevBtnClickTime = SystemClock.elapsedRealtime();
     private long mNextBtnClickTime = SystemClock.elapsedRealtime();
@@ -149,6 +152,7 @@ public class MainActivity extends Activity implements
     private TextView mTextFieldAltitude;
     private TextView mTextFieldsRemaining;
     private TextView mTextDistBetweenPass;
+    private TextView mTextTimeOfTurn;
     private Switch mSwitchLock;
     private View mDistLineIndicatorLeft;
     private View mDistLineIndicatorRight;
@@ -173,6 +177,7 @@ public class MainActivity extends Activity implements
         mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
         mTextFieldsRemaining = (TextView) findViewById(R.id.text_fields_remaining);
         mTextDistBetweenPass = (TextView) findViewById(R.id.text_dist_between_pass);
+        mTextTimeOfTurn = (TextView) findViewById(R.id.text_time_of_turn);
         mImageTrackDistDirLeft = (ImageView) findViewById(R.id.image_trackDist_left);
         mImageTrackDistDirRight = (ImageView) findViewById(R.id.image_trackDist_right);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
@@ -1243,11 +1248,26 @@ public class MainActivity extends Activity implements
                 } else {
                     mCurrentMarker.setPosition(current);
                     mCurrentMarker.setRotation(mLocationCurrent.getBearing());
-                    // set current marker color
+                    // set current marker color and exit enter times
                     if (GeoUtils.isInPolygons(mFlightPolygons, current)) {
-                        mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBmGreen));
+                        if (mIsInField == false) {
+                            mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBmGreen));
+                            mEnterFieldTime = SystemClock.elapsedRealtime();
+                            double timeOfTurn = mEnterFieldTime - mExitFieldTime;
+                            String sTimeOfTurn = String.format("%d min, %d sec",
+                                    TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn),
+                                    TimeUnit.MILLISECONDS.toSeconds((long)timeOfTurn) -
+                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn))
+                            );
+                            mTextTimeOfTurn.setText(sTimeOfTurn);
+                        }
+                        mIsInField = true;
                     } else {
-                        mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBm));
+                        if (mIsInField == true) {
+                            mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBm));
+                            mExitFieldTime = SystemClock.elapsedRealtime();
+                        }
+                        mIsInField = false;
                     }
                 }
             }
