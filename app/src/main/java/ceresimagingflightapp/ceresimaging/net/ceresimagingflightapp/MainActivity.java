@@ -1273,6 +1273,9 @@ public class MainActivity extends Activity implements
                 // display travel info
                 double dist = SphericalUtil.computeDistanceBetween(mCurrentLatLng, mDestinationMarker.getPosition());
                 double brng = SphericalUtil.computeHeading(mCurrentLatLng, mDestinationMarker.getPosition());
+                if (brng < 0) {
+                    brng += 360;
+                }
                 double time = dist / mCurrentSpeed;
                 long day = (int) TimeUnit.SECONDS.toDays((long) time);
                 long hours = TimeUnit.SECONDS.toHours((long) time) - (day * 24);
