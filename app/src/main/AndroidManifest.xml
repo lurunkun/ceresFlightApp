@@ -39,7 +39,7 @@ android:versionName="1.0" >
             android:value="AIzaSyCVMJ_Egic3hx62obiSJTA82IckWoowOZU" />
 
         <service
-            android:name=".SingleBoardConnectionService"
+            android:name=".SBC.SingleBoardConnectionService"
             android:enabled="true"
             android:exported="true" >
         </service>
@@ -54,7 +54,7 @@ android:versionName="1.0" >
         </activity>
 
         <service
-            android:name=".GpsService"
+            android:name=".GPS.GpsService"
             android:enabled="true"
             android:exported="true" >
         </service>

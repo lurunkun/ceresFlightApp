@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils;
 
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;

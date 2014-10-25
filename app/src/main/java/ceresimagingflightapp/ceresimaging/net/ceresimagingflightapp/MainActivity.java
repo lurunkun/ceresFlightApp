@@ -69,6 +69,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.GpsService;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.TabletGPSDataEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionService;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardDataEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardStatus;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.UI.BreadCrumbs;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils.GeoUtils;
+
 import static android.content.DialogInterface.OnClickListener;
 
 public class MainActivity extends Activity implements
@@ -145,6 +154,7 @@ public class MainActivity extends Activity implements
     private ImageView mImageTrackDistDirRight;
     private Drawable mDrawableLeft;
     private Drawable mDrawableRight;
+    private Drawable mDrawableBreadCrumbDot;
     private LinearLayout mLayoutArrow;
     private TextView mTextDistToField;
     private TextView mTextBrngToField;
@@ -182,6 +192,7 @@ public class MainActivity extends Activity implements
         mImageTrackDistDirRight = (ImageView) findViewById(R.id.image_trackDist_right);
         mDrawableLeft = getResources().getDrawable(R.drawable.ic_action_back);
         mDrawableRight = getResources().getDrawable(R.drawable.ic_action_forward);
+        mDrawableBreadCrumbDot = getResources().getDrawable(R.drawable.reddot);
         ColorFilter filter = new LightingColorFilter(Color.RED, Color.RED);
         mLayoutArrow = (LinearLayout) findViewById(R.id.layout_arrow);
         mDrawableLeft.setColorFilter(filter);
@@ -282,6 +293,9 @@ public class MainActivity extends Activity implements
             ToggleButton toggleRotation = (ToggleButton) findViewById(R.id.toggle_rotation);
             toggleRotation.setVisibility(View.INVISIBLE);
         }
+        // start bread crumbs
+        BreadCrumbs.startBreadCrumb(mMap);
+
         // moved to gps service
 //        initGeolocation();
 

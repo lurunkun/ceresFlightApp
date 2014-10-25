@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS;
 
 import android.location.Location;
 

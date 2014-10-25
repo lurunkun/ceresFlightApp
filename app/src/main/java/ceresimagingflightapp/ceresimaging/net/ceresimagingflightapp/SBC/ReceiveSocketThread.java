@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC;
 
 import android.util.Log;
 
@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils.MainThreadBus;
 
 /**
  * Created by huaruiwu on 10/2/14.

@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC;
 
 import android.util.Log;
 
@@ -7,6 +7,10 @@ import com.squareup.otto.Subscribe;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.GpsService;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.TabletGPSDataEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionService;
 
 /**
  * Created by huaruiwu on 10/2/14.

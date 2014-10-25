@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC;
 
 import org.json.JSONException;
 import org.json.JSONObject;

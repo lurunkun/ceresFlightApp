@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC;
 
 import android.app.Service;
 import android.content.Intent;
@@ -9,6 +9,8 @@ import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils.MainThreadBus;
+
 public class SingleBoardConnectionService extends Service {
     public static final String SBC_URL = "192.168.0.100";
 //    public static final String SBC_URL = "192.168.1.231";
@@ -17,10 +19,10 @@ public class SingleBoardConnectionService extends Service {
     private static final String TAG = "Ceres SBC Connection";
     private static MainThreadBus mBus = new MainThreadBus(new Bus());
 
-    static boolean inError = false;
-    static boolean inWarning = false;
+    public static boolean inError = false;
+    public static boolean inWarning = false;
     // list of errors received
-    static ArrayList<SingleBoardDataEvent> mErrors = new ArrayList<SingleBoardDataEvent>();
+    public static ArrayList<SingleBoardDataEvent> mErrors = new ArrayList<SingleBoardDataEvent>();
 
     private static ReceiveSocketThread mReceiveSocketThread;
     private static SendSocketThread mSendSocketThread;

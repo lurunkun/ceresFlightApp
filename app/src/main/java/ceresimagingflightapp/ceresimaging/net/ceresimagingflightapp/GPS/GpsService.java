@@ -1,4 +1,4 @@
-package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp;
+package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS;
 
 import android.app.Service;
 import android.content.Intent;
@@ -11,8 +11,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
+
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils.MainThreadBus;
 
 public class GpsService extends Service implements
         com.google.android.gms.location.LocationListener,
@@ -23,6 +26,7 @@ public class GpsService extends Service implements
     private static final int FASTEST_INTERVAL = 50;
     private static MainThreadBus mMainThreadBus = new MainThreadBus(new Bus());
     private static Bus mSBCThreadBus = new Bus(ThreadEnforcer.ANY);
+    public static LatLng mCurrentLatLng;
     LocationRequest mLocationRequest;
     LocationClient mLocationClient;
 
@@ -96,6 +100,7 @@ public class GpsService extends Service implements
         mMainThreadBus.post(new TabletGPSDataEvent(location));
         // post location to SBC send socket
         mSBCThreadBus.post(new TabletGPSDataEvent(location));
+        mCurrentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
     }
 
 }

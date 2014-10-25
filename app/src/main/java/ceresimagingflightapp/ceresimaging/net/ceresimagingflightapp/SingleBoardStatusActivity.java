@@ -10,6 +10,11 @@ import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionService;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardDataEvent;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardStatus;
+
 
 public class SingleBoardStatusActivity extends Activity {
 
