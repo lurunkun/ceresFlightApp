@@ -119,6 +119,7 @@ public class MainActivity extends Activity implements
     private Map<Marker, Boolean> mMarkerDoneMap = new HashMap<Marker, Boolean>();
     private Polyline mFlightLine;
     private Marker mDestinationMarker;
+    private Marker mAirportMarker;
     private int mNumberOfFieldsRemaining;
     private long mExitFieldTime = SystemClock.elapsedRealtime();
     private long mEnterFieldTime = SystemClock.elapsedRealtime();
@@ -568,15 +569,21 @@ public class MainActivity extends Activity implements
             JSONArray coords = geometry.getJSONArray("coordinates");
             // if feature is a point
             if (geometry.getString("type").equals("Point")) {
-                String[] description = feature.getJSONObject("properties").getString("Description").split(", ");
-                String altitude = description[0];
-                String distanceBetweenPass = description[1];
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(coords.getDouble(1), coords.getDouble(0))));
-                marker.setTitle(name);
-                marker.setSnippet("alt: " + altitude + ", distance between pass: " + distanceBetweenPass);
-                mFlightMarkers.add(marker);
-                mMarkerDoneMap.put(marker, false);
+                if (!name.equals("Airport")) {
+                    String[] description = feature.getJSONObject("properties").getString("Description").split(", ");
+                    String altitude = description[0];
+                    String distanceBetweenPass = description[1];
+                    marker.setSnippet("alt: " + altitude + ", distance between pass: " + distanceBetweenPass);
+                    marker.setTitle(name);
+                    mFlightMarkers.add(marker);
+                    mMarkerDoneMap.put(marker, false);
+                } else {
+                    marker.setTitle(name);
+                    marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                    mAirportMarker = marker;
+                }
             // if feature is polygon
             } else if (geometry.getString("type").equals("Polygon")) {
                 coords = coords.getJSONArray(0);
@@ -921,6 +928,9 @@ public class MainActivity extends Activity implements
     }
 
     public void onClickDoneFieldButton(View view) {
+        if (mDestinationMarker.getSnippet() == null) {
+            return;
+        }
         if (mDialogNextField == null) {
             // confirm select next field
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -1078,7 +1088,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-        if (mFlightMarkers.contains(marker)){
+        if (mFlightMarkers.contains(marker) || marker.getTitle().equals("Airport")){
             if (mFlightLine != null){
                 mFlightLine.remove();
             }
@@ -1095,12 +1105,14 @@ public class MainActivity extends Activity implements
             mIsFlightLineVis = true;
 
             // adjust seek bar
-            String[] description = marker.getSnippet().split(", ");
-            double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
-            mShiftDist = (int) Math.round(GeoUtils.toMeters(distanceBetweenPass));
-            int dist = (int) Math.round((distanceBetweenPass/1000)*20);
-            mSeekBarSlider.setProgress(dist);
-            mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
+            if (!marker.getTitle().equals("Airport")) {
+                String[] description = marker.getSnippet().split(", ");
+                double distanceBetweenPass = Double.parseDouble(description[1].substring(23));
+                mShiftDist = (int) Math.round(GeoUtils.toMeters(distanceBetweenPass));
+                int dist = (int) Math.round((distanceBetweenPass/1000)*20);
+                mSeekBarSlider.setProgress(dist);
+                mButtonToggleSeekBar.setText(description[1].substring(23) + "ft");
+            }
         }
         return false;
     }
@@ -1331,16 +1343,17 @@ public class MainActivity extends Activity implements
                 long minutes = TimeUnit.SECONDS.toMinutes((long) time) - (TimeUnit.SECONDS.toHours((long) time)* 60);
 //                long second = TimeUnit.SECONDS.toSeconds((long) time) - (TimeUnit.SECONDS.toMinutes((long) time) *60);
                 if (hours > 100) { hours = 0; minutes = 0; }
-                String[] description = mDestinationMarker.getSnippet().split(", ");
-                String altitude = description[0].substring(5);
-                String distanceBetweenPass = description[1].substring(23);
+                if (mDestinationMarker.getSnippet() != null) {
+                    String[] description = mDestinationMarker.getSnippet().split(", ");
+                    String altitude = description[0].substring(5);
+                    String distanceBetweenPass = description[1].substring(23);
+                    mTextFieldAltitude.setText(altitude + "ft ASL");
+                    mTextDistBetweenPass.setText(distanceBetweenPass + "ft");
+                }
                 dist = GeoUtils.toMiles(dist);
                 mTextDistToField.setText(Integer.toString((int)Math.round(dist)) + "miles");
                 mTextBrngToField.setText(Integer.toString((int)Math.round(brng)) + "\u00B0");
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
-                mTextFieldAltitude.setText(altitude + "ft ASL");
-                mTextDistBetweenPass.setText(distanceBetweenPass + "ft");
-
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining) + " remaining");
         }
