@@ -1273,8 +1273,11 @@ public class MainActivity extends Activity implements
                     mCurrentMarker.setPosition(current);
                     mCurrentMarker.setRotation(mLocationCurrent.getBearing());
                     // set current marker color and exit enter times
-                    if (GeoUtils.isInPolygons(mFlightPolygons, current)) {
+                    Polygon polygon = GeoUtils.getPointPolygon(mFlightPolygons, current);
+                    if (polygon != null) {
                         if (mIsInField == false) {
+                            polygon.setFillColor(0x220000FF);
+                            polygon.setStrokeColor(Color.MAGENTA);
                             mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBmGreen));
                             mEnterFieldTime = SystemClock.elapsedRealtime();
                             double timeOfTurn = mEnterFieldTime - mExitFieldTime;
@@ -1288,6 +1291,10 @@ public class MainActivity extends Activity implements
                         mIsInField = true;
                     } else {
                         if (mIsInField == true) {
+                            for (Polygon p : mFlightPolygons) {
+                                p.setFillColor(0x00000000);
+                                p.setStrokeColor(Color.BLUE);
+                            }
                             mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBm));
                             mExitFieldTime = SystemClock.elapsedRealtime();
                         }

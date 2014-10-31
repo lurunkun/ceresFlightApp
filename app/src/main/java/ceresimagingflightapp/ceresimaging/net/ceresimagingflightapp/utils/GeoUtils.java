@@ -63,13 +63,13 @@ public class GeoUtils {
         return new LatLng(latitude/totalPoints, longitude/totalPoints);
     }
 
-    public static boolean isInPolygons(List<Polygon> polygons, LatLng point) {
+    public static Polygon getPointPolygon(List<Polygon> polygons, LatLng point) {
         for (Polygon polygon : polygons) {
             if (PolyUtil.containsLocation(point, polygon.getPoints(), true)) {
-                return true;
+                return polygon;
             }
         }
-        return false;
+        return null;
     }
 
     // returns the marker that is inside polygon
