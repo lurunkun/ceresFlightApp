@@ -70,6 +70,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.GpsService;
+import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.StartingLocations;
 import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.GPS.TabletGPSDataEvent;
 import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionEvent;
 import ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.SBC.SingleBoardConnectionService;
@@ -1214,20 +1215,12 @@ public class MainActivity extends Activity implements
     @Subscribe
     public void onGPSDataEvent(TabletGPSDataEvent event) {
         Location location = event.location;
+        // set the starting location
         if (mLocationCurrent == null && location != null) {
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
-            double shortest = Integer.MAX_VALUE;
-            int zoom = 8;
-            LatLng closest = new LatLng(36.398487, -119.621887);
-            for (LatLng l : STARTING_LOCATIONS.keySet()) {
-                double dist = SphericalUtil.computeDistanceBetween(new LatLng(lat, lng), l);
-                if (dist < shortest) {
-                    shortest = dist;
-                    closest = l;
-                    zoom = STARTING_LOCATIONS.get(l);
-                }
-            }
+            LatLng closest  = StartingLocations.getClosest(
+                    new LatLng( location.getLatitude(), location.getLongitude())
+            );
+            int zoom = StartingLocations.getZoom(closest);
             CameraPosition cameraPosition;
             cameraPosition = new CameraPosition.Builder()
                     .target(closest)
