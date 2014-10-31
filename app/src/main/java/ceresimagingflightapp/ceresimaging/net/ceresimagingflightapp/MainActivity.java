@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
@@ -38,9 +39,11 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -98,6 +101,7 @@ public class MainActivity extends Activity implements
 //    LocationRequest mLocationRequest;
 //    LocationClient mLocationClient;
     private int mScreenWidth;
+    private int mScreenHeight;
 
     private LatLng mCurrentLatLng;
     private Location mLocationCurrent;
@@ -407,6 +411,7 @@ public class MainActivity extends Activity implements
         Point size = new Point();
         display.getSize(size);
         mScreenWidth = size.x;
+        mScreenHeight = size.y;
     }
 
     public void displayTrackDist(double trackDist) {
@@ -637,7 +642,6 @@ public class MainActivity extends Activity implements
         this.stopService(i);
     }
 
-
     public void onToggleCurrentLocation(View view) {
         if (mMap != null) {
             mIsFollowing = ((ToggleButton) view).isChecked();
@@ -675,6 +679,8 @@ public class MainActivity extends Activity implements
                             .zoom(zoom).bearing(mLocationCurrent.getBearing()).build();
                     mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
+                mToggleCurrentLocation.setChecked(true);
+                mToggleCurrentLocation.callOnClick();
             } else {
                 view.setBackgroundColor(Color.LTGRAY);
                 float zoom = mMap.getCameraPosition().zoom;
@@ -1247,7 +1253,6 @@ public class MainActivity extends Activity implements
                 LatLng current = new LatLng(lat, lng);
                 LatLng prev = new LatLng(mLocationPrev.getLatitude(), mLocationPrev.getLongitude());
                 location.setBearing((float) SphericalUtil.computeHeading(prev, current));
-                mLocationPrev = mLocationCurrent;
                 if (mCurrentMarker == null) {
                     // initialize regular current marker arrow
                     Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
@@ -1305,12 +1310,23 @@ public class MainActivity extends Activity implements
                 CameraPosition cameraPosition;
                 float zoom = mMap.getCameraPosition().zoom;
                 if (mIsRotating) {
+                    // get offset amount
+//                    Projection proj = mMap.getProjection();
+//                    LatLng northeast = proj.getVisibleRegion().latLngBounds.northeast;
+//                    LatLng southwest = proj.getVisibleRegion().latLngBounds.southwest;
+//                    double span = SphericalUtil.computeDistanceBetween(
+//                            northeast, southwest);
+//                    Log.e(TAG, Double.toString(span));
+//                    LatLng interpCenter = SphericalUtil.computeOffset(mCurrentLatLng, span/8, location.getBearing());
+
                     cameraPosition = new CameraPosition.Builder()
                             .target(mCurrentLatLng)
+//                            .target(interpCenter)
                             .zoom(zoom)
                             .bearing(location.getBearing())
                             .build();
                 } else {
+                    mMap.setPadding(0,0,0,0);
                     cameraPosition = new CameraPosition.Builder()
                             .target(mCurrentLatLng)
                             .zoom(zoom)
@@ -1349,6 +1365,7 @@ public class MainActivity extends Activity implements
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining) + " remaining");
+            mLocationPrev = mLocationCurrent;
         }
     }
 

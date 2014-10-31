@@ -1,7 +1,10 @@
 package ceresimagingflightapp.ceresimaging.net.ceresimagingflightapp.utils;
 
+import android.graphics.Point;
 import android.location.Location;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polygon;
