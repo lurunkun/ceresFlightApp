@@ -595,6 +595,31 @@
                     android:gravity="right" />
             </LinearLayout>
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout4" >
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:text="Fields remaining:"
+                    android:id="@+id/textView2"
+                    android:singleLine="false"
+                    android:textColor="#fff"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_fields_percentage"
+                    android:textColor="#ffffff00"
+                    android:textSize="28sp"
+                    android:textAlignment="gravity"
+                    android:gravity="right" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <TextView

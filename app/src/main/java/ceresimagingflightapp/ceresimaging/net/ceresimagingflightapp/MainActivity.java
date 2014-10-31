@@ -167,6 +167,7 @@ public class MainActivity extends Activity implements
     private TextView mTextTimeToField;
     private TextView mTextFieldAltitude;
     private TextView mTextFieldsRemaining;
+    private TextView mTextFieldsPercentage;
     private TextView mTextDistBetweenPass;
     private TextView mTextTimeOfTurn;
     private Switch mSwitchLock;
@@ -192,6 +193,7 @@ public class MainActivity extends Activity implements
         mTextTimeToField = (TextView) findViewById(R.id.text_time_to_field);
         mTextFieldAltitude = (TextView) findViewById(R.id.text_field_altitude);
         mTextFieldsRemaining = (TextView) findViewById(R.id.text_fields_remaining);
+        mTextFieldsPercentage = (TextView) findViewById(R.id.text_fields_percentage);
         mTextDistBetweenPass = (TextView) findViewById(R.id.text_dist_between_pass);
         mTextTimeOfTurn = (TextView) findViewById(R.id.text_time_of_turn);
         mImageTrackDistDirLeft = (ImageView) findViewById(R.id.image_trackDist_left);
@@ -1372,6 +1374,8 @@ public class MainActivity extends Activity implements
                 mTextTimeToField.setText(Long.toString(hours) + "h " + Long.toString(minutes) + "m" );
             }
             mTextFieldsRemaining.setText(Integer.toString(mNumberOfFieldsRemaining) + " remaining");
+            mTextFieldsPercentage.setText(Integer.toString((int)(100 - ((double)mNumberOfFieldsRemaining/mFlightPolygons.size())*100)) +
+                "% completed");
             mLocationPrev = mLocationCurrent;
         }
     }
