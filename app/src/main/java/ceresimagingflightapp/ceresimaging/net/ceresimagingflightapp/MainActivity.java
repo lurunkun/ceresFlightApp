@@ -1097,6 +1097,9 @@ public class MainActivity extends Activity implements
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        if (marker.equals(mCurrentMarker)) {
+            return false;
+        }
         if (mFlightMarkers.contains(marker) || marker.getTitle().equals("Airport")){
             if (mFlightLine != null){
                 mFlightLine.remove();
@@ -1257,18 +1260,20 @@ public class MainActivity extends Activity implements
                 location.setBearing((float) SphericalUtil.computeHeading(prev, current));
                 if (mCurrentMarker == null) {
                     // initialize regular current marker arrow
-                    Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
+//                    Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
+                    Drawable arrow = getResources().getDrawable(R.drawable.plane_icon);
                     mArrowBm = ((BitmapDrawable) arrow).getBitmap();
-                    mArrowBm = mArrowBm.createScaledBitmap(mArrowBm, mArrowBm.getWidth()/3, mArrowBm.getHeight()/3, true);
+                    mArrowBm = mArrowBm.createScaledBitmap(mArrowBm, mArrowBm.getWidth()/5, mArrowBm.getHeight()/3, true);
                     // initialize green current marker arrow
-                    Drawable arrowGreen = getResources().getDrawable(R.drawable.location_arrow_green);
+//                    Drawable arrowGreen = getResources().getDrawable(R.drawable.location_arrow_green);
+                    Drawable arrowGreen = getResources().getDrawable(R.drawable.plane_icon_green);
                     mArrowBmGreen = ((BitmapDrawable) arrowGreen).getBitmap();
                     mArrowBmGreen = mArrowBmGreen.createScaledBitmap(mArrowBmGreen,
                             mArrowBmGreen.getWidth()/3, mArrowBmGreen.getHeight()/3, true);
                     mCurrentMarker = mMap.addMarker(new MarkerOptions()
                             .position(current)
                             .flat(true)
-                            .anchor((float) 0.5, (float) 0.8)
+                            .anchor((float) 0.5, (float) 0.5)
                             .rotation(mLocationCurrent.getBearing())
                             .icon(BitmapDescriptorFactory.fromBitmap(mArrowBm)));
                 } else {
