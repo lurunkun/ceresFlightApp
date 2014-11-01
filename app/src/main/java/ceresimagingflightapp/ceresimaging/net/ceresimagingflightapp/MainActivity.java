@@ -1281,14 +1281,7 @@ public class MainActivity extends Activity implements
                             polygon.setFillColor(0x220000FF);
                             polygon.setStrokeColor(Color.MAGENTA);
                             mCurrentMarker.setIcon(BitmapDescriptorFactory.fromBitmap(mArrowBmGreen));
-                            mEnterFieldTime = SystemClock.elapsedRealtime();
-                            double timeOfTurn = mEnterFieldTime - mExitFieldTime;
-                            String sTimeOfTurn = String.format("%d min, %d sec",
-                                    TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn),
-                                    TimeUnit.MILLISECONDS.toSeconds((long)timeOfTurn) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn))
-                            );
-                            mTextTimeOfTurn.setText(sTimeOfTurn);
+                            mTextTimeOfTurn.setText("0");
                         }
                         mIsInField = true;
                     } else {
@@ -1301,6 +1294,14 @@ public class MainActivity extends Activity implements
                             mExitFieldTime = SystemClock.elapsedRealtime();
                         }
                         mIsInField = false;
+                        mEnterFieldTime = SystemClock.elapsedRealtime();
+                        double timeOfTurn = mEnterFieldTime - mExitFieldTime;
+                        String sTimeOfTurn = String.format("%d min, %d sec",
+                                TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn),
+                                TimeUnit.MILLISECONDS.toSeconds((long)timeOfTurn) -
+                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)timeOfTurn))
+                        );
+                        mTextTimeOfTurn.setText(sTimeOfTurn);
                     }
                 }
             }
