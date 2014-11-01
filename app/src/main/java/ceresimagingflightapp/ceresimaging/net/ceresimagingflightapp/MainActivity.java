@@ -1263,7 +1263,7 @@ public class MainActivity extends Activity implements
 //                    Drawable arrow = getResources().getDrawable(R.drawable.location_arrow);
                     Drawable arrow = getResources().getDrawable(R.drawable.plane_icon);
                     mArrowBm = ((BitmapDrawable) arrow).getBitmap();
-                    mArrowBm = mArrowBm.createScaledBitmap(mArrowBm, mArrowBm.getWidth()/5, mArrowBm.getHeight()/3, true);
+                    mArrowBm = mArrowBm.createScaledBitmap(mArrowBm, mArrowBm.getWidth()/3, mArrowBm.getHeight()/3, true);
                     // initialize green current marker arrow
 //                    Drawable arrowGreen = getResources().getDrawable(R.drawable.location_arrow_green);
                     Drawable arrowGreen = getResources().getDrawable(R.drawable.plane_icon_green);
