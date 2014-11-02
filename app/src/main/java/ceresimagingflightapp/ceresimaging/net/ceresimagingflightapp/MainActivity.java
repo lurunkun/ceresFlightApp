@@ -838,8 +838,8 @@ public class MainActivity extends Activity implements
                 view.setBackgroundColor(Color.RED);
                 LatLng pointA = new LatLng(mLocationA.getLatitude(), mLocationA.getLongitude());
                 LatLng pointB = new LatLng(mLocationB.getLatitude(), mLocationB.getLongitude());
-                mInterpA = SphericalUtil.computeOffset(pointB, 4000, SphericalUtil.computeHeading(pointA, pointB));
-                mInterpB = SphericalUtil.computeOffset(pointA, 4000, SphericalUtil.computeHeading(pointB, pointA));
+                mInterpA = SphericalUtil.computeOffset(pointB, 15000, SphericalUtil.computeHeading(pointA, pointB));
+                mInterpB = SphericalUtil.computeOffset(pointA, 15000, SphericalUtil.computeHeading(pointB, pointA));
 
                 if (mMarkerA != null && mMarkerB != null) {
                     mMarkerA.setPosition(mInterpA);
